@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vape Shop</title>
+    <!-- Подключаем SDK Telegram -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --accent-color: #bb86fc;
+            --card-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 70px; /* Отступ под таббар */
+            user-select: none;
+        }
+
+        /* Шапка */
+        header {
+            background-color: var(--card-bg);
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 1px solid #333;
+        }
+
+        /* Контентные зоны */
+        .page {
+            display: none;
+            padding: 15px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Карточки товаров (Главная) */
+        .catalog {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .product-title {
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Нижний Таббар */
+        .tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #333;
+            z-index: 1000;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .tab-item.active {
+            color: var(--accent-color);
+        }
+
+        .tab-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <header id="header-title">Vape Shop</header>
+
+    <!-- Вкладка 1: Домик (Магазин) -->
+    <div id="home-page" class="page active">
+        <div class="catalog">
+            <div class="product-card">
+                <div style="background:#444; height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center;">💨</div>
+                <div class="product-title">Испаритель X-Pod</div>
+                <div class="product-price">1500 ₽</div>
+                <button class="btn" onclick="addToCart('Испаритель X-Pod', 1500)">В корзину</button>
+            </div>
+            <div class="product-card">
+                <div style="background:#444; height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center;">🍓</div>
+                <div class="product-title">Жидкость Berry Mix</div>
+                <div class="product-price">550 ₽</div>
+                <button class="btn" onclick="addToCart('Жидкость Berry Mix', 550)">В корзину</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка 2: Корзина -->
+    <div id="cart-page" class="page">
+        <h3>Ваш заказ</h3>
+        <div id="cart-items">Корзина пуста</div>
+        <hr style="border-color: #333; margin: 15px 0;">
+        <div style="display: flex; justify-content: space-between; font-weight: bold;">
+            <span>Итого:</span>
+            <span id="cart-total">0 ₽</span>
+        </div>
+        <button class="btn" style="margin-top: 15px;" onclick="checkout()">Оформить заказ</button>
+    </div>
+
+    <!-- Вкладка 3: Профиль -->
+    <div id="profile-page" class="page">
+        <p><strong>Привет, <span id="user-name">Гость</span>!</strong></p>
+        <p>Ваш ID: <span id="user-id">-</span></p>
+        <p>Статус: Постоянный клиент</p>
+    </div>
+
+    <!-- Нижняя Навигация -->
+    <nav class="tabbar">
+        <button class="tab-item active" onclick="switchTab('home', this)">
+            <span class="tab-icon">🏠</span>
+            <span>Домик</span>
+        </button>
+        <button class="tab-item" onclick="switchTab('cart', this)">
+            <span class="tab-icon">🛒</span>
+            <span>Корзина</span>
+        </button>
+        <button class="tab-item" onclick="switchTab('profile', this)">
+            <span class="tab-icon">👤</span>
+            <span>Профиль</span>
+        </button>
+    </nav>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Расширяем на весь экран
+
+        // Подтягиваем данные пользователя из Telegram
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
+            document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
+        }
+
+        // Логика переключения вкладок
+        function switchTab(pageId, element) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(`${pageId}-page`).classList.add('active');
+            element.classList.add('active');
+
+            const headers = { 'home': 'Vape Shop', 'cart': 'Корзина', 'profile': 'Профиль' };
+            document.getElementById('header-title').innerText = headers[pageId];
+        }
+
+        // Простейшая корзина
+        let cart = [];
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+            tg.HapticFeedback.notificationOccurred('success'); // Легкая вибрация при добавлении
+        }
+
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            if (cart.length === 0) {
+                container.innerHTML = 'Корзина пуста';
+                totalEl.innerText = '0 ₽';
+                return;
+            }
+            container.innerHTML = cart.map(item => `<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>${item.name}</span><span>${item.price} ₽</span></div>`).join('');
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            totalEl.innerText = `${total} ₽`;
+        }
+
+        // Отправка заказа обратно в бота
+        function checkout() {
+            if (cart.length === 0) return;
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            
+            // Данные отправляются строкой, бот их поймает
+            tg.sendData(JSON.stringify({
+                action: 'order',
+                items: cart,
+                total: total
+            }));
+        }
+    </script>
+</body>
+</html>
