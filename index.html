@@ -56,7 +56,7 @@
             100% { background-position: 200% center; }
         }
 
-        /* Верхняя панель (Header) с центрированием и кнопкой */
+        /* Верхняя панель (Header) */
         header {
             background-color: var(--card-bg);
             backdrop-filter: blur(15px);
@@ -72,7 +72,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        /* КНОПКА ТРИ ПОЛОСКИ (БУРГЕР) */
+        /* Кнопка-бургер */
         .burger-btn {
             position: absolute;
             left: 15px;
@@ -99,11 +99,11 @@
             transition: transform 0.25s ease, opacity 0.25s ease;
         }
 
-        /* БОКОВОЕ МЕНЮ КАТЕГОРИЙ (DRAWER) */
+        /* Боковое меню категорий */
         .sidebar {
             position: fixed;
             top: 0;
-            left: -270px; /* Спрятано слева */
+            left: -270px;
             width: 270px;
             height: 100%;
             background: rgba(15, 15, 15, 0.96);
@@ -111,7 +111,6 @@
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 5px 0 30px rgba(0,0,0,0.7);
             z-index: 3000;
-            /* Премиальная анимация выталкивания iOS-style */
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             padding: 24px 20px;
             box-sizing: border-box;
@@ -120,10 +119,9 @@
         }
 
         .sidebar.active {
-            transform: translateX(270px); /* Выезжает на свою ширину */
+            transform: translateX(270px);
         }
 
-        /* Темная вуаль-подложка при открытии меню */
         .sidebar-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -140,7 +138,6 @@
             opacity: 1;
         }
 
-        /* Элементы списка категорий */
         .category-list {
             margin-top: 25px;
             display: flex;
@@ -152,9 +149,11 @@
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: #fff;
-            padding: 14px 16px;
+            padding: 12px 14px;
             border-radius: 10px;
-            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             font-size: 15px;
             font-weight: 500;
             cursor: pointer;
@@ -167,7 +166,7 @@
             transform: scale(0.97);
         }
 
-        /* Анимация плавного переключения вкладок */
+        /* Анимация переключения вкладок */
         .page {
             display: none;
             padding: 15px;
@@ -211,6 +210,17 @@
             border-color: rgba(187, 134, 252, 0.2);
         }
 
+        /* Боксы изображений внутри карточек товаров */
+        .product-img-box {
+            background: rgba(255,255,255,0.04); 
+            height: 100px; 
+            border-radius: 8px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+
         .product-title {
             font-size: 14px;
             margin: 8px 0;
@@ -222,7 +232,7 @@
             margin-bottom: 8px;
         }
 
-        /* Кнопки интерфейса */
+        /* Кнопки */
         .btn {
             background-color: var(--accent-color);
             color: #000;
@@ -256,7 +266,7 @@
             transform: scale(0.96);
         }
 
-        /* Нижнее меню (Таббар) */
+        /* Таббар */
         .tabbar {
             position: fixed;
             bottom: 0;
@@ -297,21 +307,25 @@
             font-weight: 500;
         }
 
-        /* Маскирование векторных иконок для эффекта золотого перелива */
-        .tab-icon {
+        /* Векторные маски для иконок */
+        .tab-icon, .sidebar-icon, .product-icon {
             width: 22px;
             height: 22px;
-            margin-bottom: 4px;
-            background: linear-gradient(90deg, #fecb2f 0%, #fff5be 25%, #b8860b 50%, #fff5be 75%, #fecb2f 100%);
-            background-size: 200% auto;
-            animation: goldShine 4s linear infinite;
+            background: #fff;
             -webkit-mask-size: contain;
             mask-size: contain;
             -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
             -webkit-mask-position: center;
             mask-position: center;
-            
+        }
+
+        /* Переливающееся золото для иконок меню */
+        .tab-icon {
+            margin-bottom: 4px;
+            background: linear-gradient(90deg, #fecb2f 0%, #fff5be 25%, #b8860b 50%, #fff5be 75%, #fecb2f 100%);
+            background-size: 200% auto;
+            animation: goldShine 4s linear infinite;
             opacity: 0.35;
             filter: grayscale(1);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s, filter 0.25s;
@@ -324,7 +338,11 @@
             transform: scale(1.22) translateY(-2px);
         }
 
-        /* Вшитые SVG иконки */
+        /* Иконки в боковом меню и карточках */
+        .sidebar-icon { background: var(--gold-accent); width: 20px; height: 20px; }
+        .product-icon { background: rgba(255, 255, 255, 0.7); width: 42px; height: 42px; }
+
+        /* ВШИТАЯ SVG-БАЗА КОДОВЫХ ИКОНОК */
         .icon-home {
             -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>");
             mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>");
@@ -337,8 +355,32 @@
             -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>");
             mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>");
         }
+        .icon-vape {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M18 16v-2h-2v2h2zm-6-6h2V4h-2v6zm-4 4h2V8H8v6zm11 2h-1.26c-.37-.58-.94-1.02-1.62-1.24l-1.12-.37V4c0-1.1-.9-2-2-2h-2c-1.1 0-2 .9-2 2v2H7c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h1.12l1.12.37c.68.22 1.25.66 1.62 1.24H7c-1.1 0-2 .9-2 2v2h14v-2c0-1.1-.9-2-2-2z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M18 16v-2h-2v2h2zm-6-6h2V4h-2v6zm-4 4h2V8H8v6zm11 2h-1.26c-.37-.58-.94-1.02-1.62-1.24l-1.12-.37V4c0-1.1-.9-2-2-2h-2c-1.1 0-2 .9-2 2v2H7c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h1.12l1.12.37c.68.22 1.25.66 1.62 1.24H7c-1.1 0-2 .9-2 2v2h14v-2c0-1.1-.9-2-2-2z'/></svg>");
+        }
+        .icon-liquid {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z'/></svg>");
+        }
+        .icon-battery {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z'/></svg>");
+        }
+        .icon-tools {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.4 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.5z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.3C.4 6.7.9 9.8 2.9 11.8c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.5z'/></svg>");
+        }
+        .icon-star {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/></svg>");
+        }
+        .icon-check {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='%23000' stroke-width='3' d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/></svg>");
+        }
 
-        /* Модальное окно заказа */
+        /* Модальное окно */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -368,6 +410,9 @@
             transform: scale(0.85);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .modal-overlay.active .modal-content {
@@ -378,288 +423,4 @@
 <body>
 
     <canvas id="dotsCanvas"></canvas>
-
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-    <div id="sidebarMenu" class="sidebar">
-        <h3 class="gold-shimmer-text" style="margin: 10px 0 0 0; font-size: 22px; font-weight: 800;">Категории</h3>
-        <p style="font-size: 11px; color: #777; margin: 4px 0 0 0;">Выберите нужный раздел</p>
-        
-        <div class="category-list">
-            <button class="category-item" onclick="selectCategory('Все товары')">✨ Все товары</button>
-            <button class="category-item" onclick="selectCategory('Испарители')">💨 Испарители</button>
-            <button class="category-item" onclick="selectCategory('Жидкости')">🍓 Жидкости</button>
-            <button class="category-item" onclick="selectCategory('Одноразки')">🔋 Одноразки</button>
-            <button class="category-item" onclick="selectCategory('Аксессуары')">🛠 Аксессуары</button>
-        </div>
-    </div>
-
-    <div id="orderModal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="font-size: 45px; margin-bottom: 12px;">📲</div>
-            <h3 style="margin: 0 0 8px 0; color: var(--gold-accent); font-size: 18px;">Заказ сформирован!</h3>
-            <p style="font-size: 13px; color: #ccc; margin: 0 0 20px 0; line-height: 1.4;">
-                Список товаров скопирован в буфер обмена. Нажмите кнопку, перейдите к менеджеру и просто вставьте текст в поле ввода сообщения.
-            </p>
-            <button class="btn-gold" onclick="redirectToManager()">Написать @Delorean1234</button>
-            <button onclick="closeModal()" style="background:none; border:none; color:#666; margin-top:14px; cursor:pointer; font-size: 12px; text-decoration: underline;">Закрыть</button>
-        </div>
-    </div>
-
-    <div class="content-wrapper">
-        <header>
-            <button class="burger-btn" onclick="toggleSidebar()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-            <span class="gold-shimmer-text">Vape Shop</span>
-        </header>
-
-        <div id="home-page" class="page active">
-            <h4 id="currentCategoryTitle" style="margin: 5px 0 15px 0; font-weight: 600; color: #aaa; font-size: 14px;">Раздел: Все товары</h4>
-            
-            <div class="catalog">
-                <div class="product-card">
-                    <div style="background:rgba(255,255,255,0.05); height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size: 32px;">💨</div>
-                    <div class="product-title">Испаритель X-Pod</div>
-                    <div class="product-price">1500 ₽</div>
-                    <button class="btn" onclick="addToCart('Испаритель X-Pod', 1500)">В корзину</button>
-                </div>
-                <div class="product-card">
-                    <div style="background:rgba(255,255,255,0.05); height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size: 32px;">🍓</div>
-                    <div class="product-title">Жидкость Berry Mix</div>
-                    <div class="product-price">550 ₽</div>
-                    <button class="btn" onclick="addToCart('Жидкость Berry Mix', 550)">В корзину</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="cart-page" class="page">
-            <div class="product-card" style="text-align: left; max-width: 600px; margin: 0 auto;">
-                <h3 style="margin-top: 0; color: var(--gold-accent);">Ваш заказ</h3>
-                <div id="cart-items">Корзина пуста</div>
-                <hr style="border-color: rgba(255,255,255,0.06); margin: 15px 0;">
-                <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                    <span>Итого:</span>
-                    <span id="cart-total">0 ₽</span>
-                </div>
-                <button class="btn" style="margin-top: 20px;" onclick="checkout()">Оформить заказ</button>
-            </div>
-        </div>
-
-        <div id="profile-page" class="page">
-            <div class="product-card" style="text-align: left; max-width: 600px; margin: 0 auto;">
-                <p style="margin-top:0;"><strong>Привет, <span id="user-name">Гость</span>!</strong></p>
-                <p>Ваш ID: <span id="user-id">-</span></p>
-                <p style="margin-bottom:0;">Статус: Постоянный клиент</p>
-            </div>
-        </div>
-
-        <nav class="tabbar">
-            <button class="tab-item active" onclick="switchTab('home', this)">
-                <div class="tab-icon icon-home"></div>
-                <span>Домик</span>
-            </button>
-            <button class="tab-item" onclick="switchTab('cart', this)">
-                <div class="tab-icon icon-cart"></div>
-                <span>Корзина</span>
-            </button>
-            <button class="tab-item" onclick="switchTab('profile', this)">
-                <div class="tab-icon icon-profile"></div>
-                <span>Профиль</span>
-            </button>
-        </nav>
-    </div>
-
-    <script>
-        // Интеграция с Telegram WebApp (с безопасным fallback режимом)
-        const tg = window.Telegram?.WebApp || { expand: () => {}, HapticFeedback: {}, openTelegramLink: (url) => window.open(url, '_blank') };
-        
-        try {
-            tg.expand(); 
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name || 'Клиент';
-                document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id || '-';
-            }
-        } catch(e) { console.log("Telegram SDK Safe Mode Active"); }
-
-        // --- ЛОГИКА БОКОВОГО МЕНЮ (КАТЕГОРИИ) ---
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebarMenu');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            tg.HapticFeedback?.impactOccurred?.('medium'); // Вибрация средней силы при открытии/закрытии
-
-            if (sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-                setTimeout(() => overlay.style.display = 'none', 300);
-            } else {
-                overlay.style.display = 'block';
-                setTimeout(() => {
-                    sidebar.classList.add('active');
-                    overlay.classList.add('active');
-                }, 10);
-            }
-        }
-
-        function selectCategory(categoryName) {
-            // Меняем текст выбранной категории на главном экране
-            document.getElementById('currentCategoryTitle').innerText = `Раздел: ${categoryName}`;
-            
-            // Если мы были на другой вкладке (например, в профиле) — возвращаем пользователя в "Домик" (Каталог)
-            const homeTabButton = document.querySelector('.tabbar .tab-item:nth-child(1)');
-            switchTab('home', homeTabButton);
-
-            // Закрываем боковое меню
-            toggleSidebar();
-
-            // Легкий виброотклик при выборе
-            tg.HapticFeedback?.notificationOccurred?.('success');
-        }
-
-        // Переключение основных страниц (Домик / Корзина / Профиль)
-        function switchTab(pageId, element) {
-            const currentPage = document.querySelector('.page.active');
-            const targetPage = document.getElementById(`${pageId}-page`);
-            
-            if(currentPage === targetPage) return;
-
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-            
-            targetPage.classList.add('active');
-            element.classList.add('active');
-            
-            tg.HapticFeedback?.impactOccurred?.('light'); 
-        }
-
-        // Логика работы корзины
-        let cart = [];
-        function addToCart(name, price) {
-            cart.push({ name, price });
-            updateCart();
-            tg.HapticFeedback?.notificationOccurred?.('success'); 
-        }
-
-        function updateCart() {
-            const container = document.getElementById('cart-items');
-            const totalEl = document.getElementById('cart-total');
-            if (cart.length === 0) {
-                container.innerHTML = 'Корзина пуста';
-                totalEl.innerText = '0 ₽';
-                return;
-            }
-            container.innerHTML = cart.map(item => `<div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>${item.name}</span><span style="font-weight:500;">${item.price} ₽</span></div>`).join('');
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            totalEl.innerText = `${total.toLocaleString()} ₽`;
-        }
-
-        // Кнопка «Оформить заказ»
-        function checkout() {
-            if (cart.length === 0) return;
-            
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            
-            let orderText = "👋 Привет! Хочу купить у вас товары:\n\n";
-            cart.forEach((item, index) => {
-                orderText += `${index + 1}. ${item.name} — ${item.price} ₽\n`;
-            });
-            orderText += `\n💵 Общая сумма: ${total.toLocaleString()} ₽`;
-
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-                navigator.clipboard.writeText(orderText).catch(err => {
-                    console.log('Ошибка буфера обмена:', err);
-                });
-            }
-
-            const modal = document.getElementById('orderModal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
-            
-            tg.HapticFeedback?.notificationOccurred?.('success'); 
-        }
-
-        function redirectToManager() {
-            try {
-                tg.openTelegramLink('https://t.me/Delorean1234');
-            } catch(e) {
-                window.open('https://t.me/Delorean1234', '_blank');
-            }
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('orderModal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
-            tg.HapticFeedback?.impactOccurred?.('light');
-        }
-
-        // Рендеринг и физика фоновых цифровых волн (Canvas)
-        const canvas = document.getElementById('dotsCanvas');
-        const ctx = canvas.getContext('2d');
-        let pointer = { x: null, y: null, radius: 90 }; 
-
-        const dotDensity = 16;  
-        const lineSpacing = 34; 
-        let numLines = 0;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            numLines = Math.ceil(canvas.height / lineSpacing) + 4; 
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        window.addEventListener('mousemove', (e) => { pointer.x = e.clientX; pointer.y = e.clientY; });
-        window.addEventListener('mouseleave', () => { pointer.x = null; pointer.y = null; });
-        window.addEventListener('touchstart', (e) => { if(e.touches.length > 0) { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; } });
-        window.addEventListener('touchmove', (e) => { if(e.touches.length > 0) { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; } });
-        window.addEventListener('touchend', () => { pointer.x = null; pointer.y = null; });
-
-        let time = 0;
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            time += 0.003; 
-
-            for (let l = -2; l < numLines; l++) {
-                let baseY = l * lineSpacing;
-
-                for (let x = 0; x <= canvas.width; x += dotDensity) {
-                    let wave1 = Math.sin(x * 0.0035 + time + l * 0.16) * 28;
-                    let wave2 = Math.cos(x * 0.0075 - time * 0.7 + l * 0.28) * 14;
-                    
-                    let y = baseY + wave1 + wave2;
-
-                    let drawX = x;
-                    let drawY = y;
-
-                    if (pointer.x !== null && pointer.y !== null) {
-                        let dx = x - pointer.x;
-                        let dy = y - pointer.y;
-                        let dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < pointer.radius) {
-                            let force = (pointer.radius - dist) / pointer.radius;
-                            drawX += (dx / dist) * force * 22;
-                            drawY += (dy / dist) * force * 22;
-                        }
-                    }
-
-                    let alphaFactor = (Math.sin(x * 0.0025 + time + l * 0.12) + 1) / 2;
-                    let currentAlpha = 0.05 + alphaFactor * 0.16;
-
-                    ctx.beginPath();
-                    ctx.arc(drawX, drawY, 1.2, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(254, 203, 47, ${currentAlpha})`; 
-                    ctx.fill();
-                }
-            }
-            requestAnimationFrame(animate);
-        }
-        animate();
-    </script>
-</body>
-</html>
