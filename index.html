@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Vape Shop Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -633,7 +633,7 @@
         <h3 class="gold-shimmer-text" style="margin: 10px 0 0 0; font-size: 22px; font-weight: 800;">Категории</h3>
         <p style="font-size: 11px; color: #777; margin: 4px 0 0 0;">Выберите нужный раздел</p>
 
-        <div class="category-list" id="categoryList"><!-- рендерится из CATEGORIES в JS --></div>
+        <div class="category-list" id="categoryList"></div>
     </div>
 
     <div id="orderModal" class="modal-overlay">
@@ -665,7 +665,7 @@
         <div id="home-page" class="page active">
             <h4 id="currentCategoryTitle" style="margin: 5px 0 15px 0; font-weight: 600; color: #aaa; font-size: 14px;">Раздел: Все товары</h4>
 
-            <div class="catalog" id="catalogGrid"><!-- рендерится из PRODUCTS в JS --></div>
+            <div class="catalog" id="catalogGrid"></div>
         </div>
 
         <div id="cart-page" class="page">
@@ -722,11 +722,11 @@
         /* Категории — единый источник правды для сайдбара и фильтра каталога.
            "id: 'all'" — служебная категория, показывает весь каталог. */
         const CATEGORIES = [
-            { id: 'all',          label: 'Все товары',  icon: 'icon-star' },
-            { id: 'vapes',        label: 'Испарители',  icon: 'icon-vape' },
-            { id: 'liquids',      label: 'Жидкости',    icon: 'icon-liquid' },
-            { id: 'disposables',  label: 'Одноразки',   icon: 'icon-battery' },
-            { id: 'accessories',  label: 'Аксессуары',  icon: 'icon-tools' }
+            { id: 'all',         label: 'Все товары',  icon: 'icon-star' },
+            { id: 'vapes',       label: 'Испарители',  icon: 'icon-vape' },
+            { id: 'liquids',     label: 'Жидкости',    icon: 'icon-liquid' },
+            { id: 'disposables', label: 'Одноразки',   icon: 'icon-battery' },
+            { id: 'accessories', label: 'Аксессуары',  icon: 'icon-tools' }
         ];
 
         /* Каталог товаров — ПРИМЕР ДАННЫХ.
@@ -939,19 +939,34 @@
            КОРЗИНА
            ============================================================ */
         function addToCart(productId) {
-            cart[productId] = (cart[productId] || 0) + 1;
+            const currentQty = cart[productId] || 0;
+            if (currentQty + 1 > 99) {
+                showToast('Максимальное количество!');
+                tg.HapticFeedback?.notificationOccurred?.('warning');
+                return;
+            }
+            cart[productId] = currentQty + 1;
             tg.HapticFeedback?.notificationOccurred?.('success');
             showToast('Добавлено в корзину');
             onCartChanged();
         }
 
         function changeQty(productId, delta) {
-            const next = (cart[productId] || 0) + delta;
+            const currentQty = cart[productId] || 0;
+            const next = currentQty + delta;
+            
+            if (next > 99) {
+                showToast('Максимальное количество!');
+                tg.HapticFeedback?.notificationOccurred?.('warning');
+                return; 
+            }
+
             if (next <= 0) {
                 delete cart[productId];
             } else {
                 cart[productId] = next;
             }
+            
             tg.HapticFeedback?.impactOccurred?.('light');
             onCartChanged();
         }
@@ -1057,10 +1072,18 @@
             } catch (e) { /* старые клиенты могут не поддерживать */ }
         }
 
+        let cloudSaveTimeout = null;
         function saveCartToCloud() {
-            try {
-                tg.CloudStorage?.setItem?.('vape_shop_cart', JSON.stringify(cart), () => {});
-            } catch (e) { /* CloudStorage недоступен — тихо игнорируем */ }
+            if (cloudSaveTimeout) clearTimeout(cloudSaveTimeout);
+            cloudSaveTimeout = setTimeout(() => {
+                try {
+                    tg.CloudStorage?.setItem?.('vape_shop_cart', JSON.stringify(cart), (err) => {
+                        if (err) console.error('Ошибка сохранения в облако:', err);
+                    });
+                } catch (e) { 
+                    console.log('CloudStorage недоступен'); 
+                }
+            }, 500);
         }
 
         function loadCartFromCloud() {
@@ -1107,15 +1130,32 @@
             if (cartCount() === 0) return;
             const orderText = buildOrderText();
 
-            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-                navigator.clipboard.writeText(orderText).catch(err => console.log(err));
+            // Безопасное копирование с обратной связью
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(orderText)
+                    .then(() => {
+                        showToast('Текст заказа скопирован!');
+                    })
+                    .catch(err => {
+                        console.warn('Не удалось скопировать', err);
+                        showToast('Заказ сформирован (скопируйте вручную, если потребуется)');
+                    });
+            } else {
+                // Fallback для старых устройств
+                showToast('Заказ готов к отправке');
             }
 
             const modal = document.getElementById('orderModal');
             const managerBtn = document.getElementById('modalManagerBtn');
             managerBtn.textContent = `Написать @${CONFIG.managerUsername}`;
             modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
+            
+            // Небольшая задержка для плавности анимации
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    modal.classList.add('active');
+                });
+            });
             tg.HapticFeedback?.notificationOccurred?.('success');
         }
 
@@ -1150,13 +1190,21 @@
             if (sidebar.classList.contains('active')) {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
-                setTimeout(() => overlay.style.display = 'none', 300);
+                // Ждем окончания CSS анимации (0.3s) перед display: none
+                setTimeout(() => {
+                    if (!sidebar.classList.contains('active')) {
+                        overlay.style.display = 'none';
+                    }
+                }, 300); 
             } else {
                 overlay.style.display = 'block';
-                setTimeout(() => {
-                    sidebar.classList.add('active');
-                    overlay.classList.add('active');
-                }, 10);
+                // Заставляем браузер применить display:block перед добавлением класса
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        sidebar.classList.add('active');
+                        overlay.classList.add('active');
+                    });
+                });
             }
         }
 
