@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vape Shop</title>
+    <title>Vape Shop Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -26,7 +26,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Канвас для топографических линий */
+        /* Анимированный холст для фона */
         #dotsCanvas {
             position: fixed;
             top: 0;
@@ -42,19 +42,34 @@
             z-index: 1;
         }
 
-        /* Шапка */
+        /* Эффект живого золотого перелива (shimmer) */
+        .gold-shimmer-text {
+            background: linear-gradient(90deg, #fecb2f 0%, #fff5be 25%, #b8860b 50%, #fff5be 75%, #fecb2f 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: goldShine 4s linear infinite;
+        }
+
+        @keyframes goldShine {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Верхняя панель (Header) */
         header {
             background-color: var(--card-bg);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             padding: 15px;
             text-align: center;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        /* Анимация переключения страниц */
+        /* Анимация плавного переключения вкладок */
         .page {
             display: none;
             padding: 15px;
@@ -75,7 +90,7 @@
             }
         }
 
-        /* Каталог товаров */
+        /* Сетка каталога */
         .catalog {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -109,7 +124,7 @@
             margin-bottom: 8px;
         }
 
-        /* Кнопки */
+        /* Кнопки интерфейса */
         .btn {
             background-color: var(--accent-color);
             color: #000;
@@ -143,7 +158,7 @@
             transform: scale(0.96);
         }
 
-        /* Таббар */
+        /* Нижнее меню (Таббар) */
         .tabbar {
             position: fixed;
             bottom: 0;
@@ -175,22 +190,59 @@
             transition: color 0.25s ease;
         }
 
-        .tab-item.active {
-            color: var(--accent-color);
+        .tab-item span {
+            transition: color 0.25s ease;
         }
 
+        .tab-item.active span {
+            color: var(--gold-accent);
+            font-weight: 500;
+        }
+
+        /* Маскирование векторных иконок для эффекта золотого перелива */
         .tab-icon {
-            font-size: 20px;
-            margin-bottom: 2px;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            will-change: transform;
+            width: 22px;
+            height: 22px;
+            margin-bottom: 4px;
+            background: linear-gradient(90deg, #fecb2f 0%, #fff5be 25%, #b8860b 50%, #fff5be 75%, #fecb2f 100%);
+            background-size: 200% auto;
+            animation: goldShine 4s linear infinite;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            
+            /* Состояние выключенных вкладок */
+            opacity: 0.35;
+            filter: grayscale(1);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s, filter 0.25s;
+            will-change: transform, opacity;
         }
 
+        /* Стиль для активной иконки (загорается и пружинит вверх) */
         .tab-item.active .tab-icon {
+            opacity: 1;
+            filter: grayscale(0);
             transform: scale(1.22) translateY(-2px);
         }
 
-        /* Модальное окно перенаправления */
+        /* Вшитые SVG иконки */
+        .icon-home {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/></svg>");
+        }
+        .icon-cart {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z'/></svg>");
+        }
+        .icon-profile {
+            -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>");
+            mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>");
+        }
+
+        /* Модальное окно заказа */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -244,7 +296,7 @@
     </div>
 
     <div class="content-wrapper">
-        <header id="header-title">Vape Shop</header>
+        <header><span class="gold-shimmer-text">Vape Shop</span></header>
 
         <div id="home-page" class="page active">
             <div class="catalog">
@@ -265,7 +317,7 @@
 
         <div id="cart-page" class="page">
             <div class="product-card" style="text-align: left; max-width: 600px; margin: 0 auto;">
-                <h3 style="margin-top: 0;">Ваш заказ</h3>
+                <h3 style="margin-top: 0; color: var(--gold-accent);">Ваш заказ</h3>
                 <div id="cart-items">Корзина пуста</div>
                 <hr style="border-color: rgba(255,255,255,0.06); margin: 15px 0;">
                 <div style="display: flex; justify-content: space-between; font-weight: bold;">
@@ -286,22 +338,22 @@
 
         <nav class="tabbar">
             <button class="tab-item active" onclick="switchTab('home', this)">
-                <span class="tab-icon">🏠</span>
+                <div class="tab-icon icon-home"></div>
                 <span>Домик</span>
             </button>
             <button class="tab-item" onclick="switchTab('cart', this)">
-                <span class="tab-icon">🛒</span>
+                <div class="tab-icon icon-cart"></div>
                 <span>Корзина</span>
             </button>
             <button class="tab-item" onclick="switchTab('profile', this)">
-                <span class="tab-icon">👤</span>
+                <div class="tab-icon icon-profile"></div>
                 <span>Профиль</span>
             </button>
         </nav>
     </div>
 
     <script>
-        // --- БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ TELEGRAM SDK ---
+        // Интеграция с Telegram WebApp (с безопасным fallback режимом)
         const tg = window.Telegram?.WebApp || { expand: () => {}, HapticFeedback: {}, openTelegramLink: (url) => window.open(url, '_blank') };
         
         try {
@@ -310,8 +362,9 @@
                 document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name || 'Клиент';
                 document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id || '-';
             }
-        } catch(e) { console.log("Telegram SDK Init Safe Mode"); }
+        } catch(e) { console.log("Telegram SDK Safe Mode Active"); }
 
+        // Переключение страниц
         function switchTab(pageId, element) {
             const currentPage = document.querySelector('.page.active');
             const targetPage = document.getElementById(`${pageId}-page`);
@@ -323,14 +376,11 @@
             
             targetPage.classList.add('active');
             element.classList.add('active');
-
-            const headers = { 'home': 'Vape Shop', 'cart': 'Корзина', 'profile': 'Профиль' };
-            document.getElementById('header-title').innerText = headers[pageId];
             
-            // Безопасный вызов вибрации (не вызовет ошибку, если не поддерживается)
             tg.HapticFeedback?.impactOccurred?.('light'); 
         }
 
+        // Логика корзины
         let cart = [];
         function addToCart(name, price) {
             cart.push({ name, price });
@@ -351,7 +401,7 @@
             totalEl.innerText = `${total.toLocaleString()} ₽`;
         }
 
-        // --- БЕЗОПАСНАЯ СИСТЕМА ОФОРМЛЕНИЯ ЗАКАЗА ---
+        // Кнопка «Оформить заказ»
         function checkout() {
             if (cart.length === 0) return;
             
@@ -363,16 +413,12 @@
             });
             orderText += `\n💵 Общая сумма: ${total.toLocaleString()} ₽`;
 
-            // Защита: Проверяем, доступен ли буфер обмена в текущем браузере/сессии
             if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
                 navigator.clipboard.writeText(orderText).catch(err => {
-                    console.log('Не удалось записать в буфер автоматически:', err);
+                    print('Ошибка буфера обмена:', err);
                 });
-            } else {
-                console.log('Буфер обмена заблокирован средой или отсутствует HTTPS');
             }
 
-            // Окно откроется в любом случае, даже если буфер обмена выдал ошибку!
             const modal = document.getElementById('orderModal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
@@ -395,19 +441,19 @@
             tg.HapticFeedback?.impactOccurred?.('light');
         }
 
-        // --- ОПТИМИЗИРОВАННЫЙ СКРИПТ ЦИФРОВЫХ ВОЛН ---
+        // Рендеринг и физика фоновых цифровых волн (Canvas)
         const canvas = document.getElementById('dotsCanvas');
         const ctx = canvas.getContext('2d');
         let pointer = { x: null, y: null, radius: 90 }; 
 
-        const dotDensity = 16;  // Оптимизированный шаг точек
-        const lineSpacing = 34; // Оптимизированный шаг линий
+        const dotDensity = 16;  
+        const lineSpacing = 34; 
         let numLines = 0;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            numLines = Math.ceil(canvas.height / lineSpacing) + 4; // Расчет вынесен из фреймрейта
+            numLines = Math.ceil(canvas.height / lineSpacing) + 4; 
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
@@ -456,10 +502,8 @@
                     ctx.fill();
                 }
             }
-
             requestAnimationFrame(animate);
         }
-
         animate();
     </script>
 </body>
