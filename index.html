@@ -288,6 +288,11 @@
             transform: none !important;
         }
 
+        /* Прячем дубликат кнопки "Оформить заказ" если включена нативная от Telegram */
+        body.tg-native #checkoutBtn {
+            display: none !important;
+        }
+
         .btn-gold {
             background-color: var(--gold-accent);
             color: #000;
@@ -769,8 +774,7 @@
         }
 
         if (hasMainButton) {
-            // Внутри настоящего Telegram-клиента основной CTA — системная MainButton,
-            // поэтому скрываем дублирующую кнопку в карточке корзины.
+            // Внутри настоящего Telegram-клиента добавляем класс для скрытия дублирующей кнопки
             document.body.classList.add('tg-native');
             tg.MainButton.onClick(checkout);
         }
@@ -1063,16 +1067,26 @@
             badge.classList.toggle('show', count > 0);
         }
 
+        let mainBtnTimer = null;
         function syncMainButton() {
             if (!hasMainButton) return;
-            const count = cartCount();
-            if (count > 0) {
-                tg.MainButton.setText(`Оформить заказ • ${formatPrice(cartTotal())}`);
-                tg.MainButton.show();
-                tg.MainButton.enable();
-            } else {
-                tg.MainButton.hide();
-            }
+            
+            // Очищаем предыдущий таймер, чтобы не спамить API Telegram
+            if (mainBtnTimer) clearTimeout(mainBtnTimer);
+            
+            mainBtnTimer = setTimeout(() => {
+                const count = cartCount();
+                if (count > 0) {
+                    // Используем setParams вместо setText, это надежнее внутри Telegram
+                    tg.MainButton.setParams({
+                        text: `Оформить заказ • ${formatPrice(cartTotal())}`,
+                        is_visible: true,
+                        is_active: true
+                    });
+                } else {
+                    tg.MainButton.hide();
+                }
+            }, 60); // Небольшая задержка, чтобы Telegram точно поймал последний клик
         }
 
         function syncClosingConfirmation() {
