@@ -10,8 +10,8 @@
             --bg-color: #000000; /* Чисто черный фон */
             --text-color: #ffffff;
             --accent-color: #bb86fc;
-            --card-bg: rgba(45, 45, 45, 0.65); /* Прозрачность под точки */
-            --gold-accent: #fecb2f; /* Золотисто-желтый для акцентов заказа */
+            --card-bg: rgba(35, 35, 35, 0.6); /* Полупрозрачный фон карточек, чтобы сетка была видна */
+            --gold-accent: #fecb2f; /* Золотой цвет для заказа и элементов */
         }
 
         body {
@@ -26,7 +26,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Канвас для интерактивных желтых точек */
+        /* Канвас для топографических линий из видео */
         #dotsCanvas {
             position: fixed;
             top: 0;
@@ -51,10 +51,10 @@
             text-align: center;
             font-size: 20px;
             font-weight: bold;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        /* Анимация страниц */
+        /* Анимация переключения страниц */
         .page {
             display: none;
             padding: 15px;
@@ -75,7 +75,7 @@
             }
         }
 
-        /* Карточки товаров */
+        /* Каталог товаров */
         .catalog {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -89,12 +89,12 @@
             border-radius: 12px;
             padding: 12px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.04);
             transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
         }
 
         .product-card:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
             border-color: rgba(187, 134, 252, 0.2);
         }
 
@@ -127,7 +127,6 @@
             background-color: #d1adff;
         }
 
-        /* Стиль золотой кнопки для связи */
         .btn-gold {
             background-color: var(--gold-accent);
             color: #000;
@@ -157,7 +156,7 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
             z-index: 1000;
             padding-bottom: env(safe-area-inset-bottom);
         }
@@ -191,7 +190,7 @@
             transform: scale(1.22) translateY(-2px);
         }
 
-        /* КРАСИВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ПЕРЕНРАВЛЕНИЯ К МЕНЕДЖЕРУ */
+        /* Нативное модальное окно перенаправления */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -211,8 +210,8 @@
         }
 
         .modal-content {
-            background: rgba(30, 30, 30, 0.9);
-            border: 1px solid rgba(254, 204, 40, 0.2);
+            background: rgba(25, 25, 25, 0.95);
+            border: 1px solid rgba(254, 204, 40, 0.25);
             padding: 24px;
             border-radius: 16px;
             text-align: center;
@@ -220,7 +219,7 @@
             width: 100%;
             transform: scale(0.85);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
 
         .modal-overlay.active .modal-content {
@@ -237,10 +236,10 @@
             <div style="font-size: 45px; margin-bottom: 12px;">📲</div>
             <h3 style="margin: 0 0 8px 0; color: var(--gold-accent); font-size: 18px;">Заказ сформирован!</h3>
             <p style="font-size: 13px; color: #ccc; margin: 0 0 20px 0; line-height: 1.4;">
-                Список товаров уже скопирован в буфер обмена. Нажмите на кнопку ниже, перейдите к менеджеру и просто вставьте сообщение.
+                Список товаров уже скопирован в буфер обмена вашего телефона. Нажмите кнопку, перейдите к менеджеру и просто вставьте текст.
             </p>
             <button class="btn-gold" onclick="redirectToManager()">Написать @Delorean1234</button>
-            <button onclick="closeModal()" style="background:none; border:none; color:#777; margin-top:14px; cursor:pointer; font-size: 12px; text-decoration: underline;">Закрыть</button>
+            <button onclick="closeModal()" style="background:none; border:none; color:#666; margin-top:14px; cursor:pointer; font-size: 12px; text-decoration: underline;">Закрыть</button>
         </div>
     </div>
 
@@ -250,13 +249,13 @@
         <div id="home-page" class="page active">
             <div class="catalog">
                 <div class="product-card">
-                    <div style="background:rgba(255,255,255,0.06); height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size: 32px;">💨</div>
+                    <div style="background:rgba(255,255,255,0.05); height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size: 32px;">💨</div>
                     <div class="product-title">Испаритель X-Pod</div>
                     <div class="product-price">1500 ₽</div>
                     <button class="btn" onclick="addToCart('Испаритель X-Pod', 1500)">В корзину</button>
                 </div>
                 <div class="product-card">
-                    <div style="background:rgba(255,255,255,0.06); height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size: 32px;">🍓</div>
+                    <div style="background:rgba(255,255,255,0.05); height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size: 32px;">🍓</div>
                     <div class="product-title">Жидкость Berry Mix</div>
                     <div class="product-price">550 ₽</div>
                     <button class="btn" onclick="addToCart('Жидкость Berry Mix', 550)">В корзину</button>
@@ -268,7 +267,7 @@
             <div class="product-card" style="text-align: left; max-width: 600px; margin: 0 auto;">
                 <h3 style="margin-top: 0;">Ваш заказ</h3>
                 <div id="cart-items">Корзина пуста</div>
-                <hr style="border-color: rgba(255,255,255,0.08); margin: 15px 0;">
+                <hr style="border-color: rgba(255,255,255,0.06); margin: 15px 0;">
                 <div style="display: flex; justify-content: space-between; font-weight: bold;">
                     <span>Итого:</span>
                     <span id="cart-total">0 ₽</span>
@@ -302,7 +301,7 @@
     </div>
 
     <script>
-        // --- ЛОГИКА ТЕЛЕГРАМА ---
+        // --- TG WEBAPP API ---
         const tg = window.Telegram.WebApp;
         tg.expand(); 
 
@@ -349,27 +348,27 @@
             totalEl.innerText = `${total.toLocaleString()} ₽`;
         }
 
-        // --- ОБНОВЛЕННАЯ СИСТЕМА ЗАКАЗА К @Delorean1234 ---
+        // --- ЛОГИКА ОФОРМЛЕНИЯ ЗАКАЗА И ОТСЫЛКИ К @Delorean1234 ---
         function checkout() {
             if (cart.length === 0) return;
             
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             
-            // Генерируем красивый текст чека для буфера обмена
-            let orderText = "👋 Привет! Хочу сделать заказ из Vape Shop:\n\n";
+            // Формируем красивый структурированный текст чека
+            let orderText = "👋 Привет! Хочу купить у вас товары:\n\n";
             cart.forEach((item, index) => {
                 orderText += `${index + 1}. ${item.name} — ${item.price} ₽\n`;
             });
-            orderText += `\n💵 Итого к оплате: ${total.toLocaleString()} ₽`;
+            orderText += `\n💵 Общая сумма: ${total.toLocaleString()} ₽`;
 
-            // Копируем чек в буфер обмена телефона
+            // Копируем автоматически в буфер обмена телефона пользователя
             navigator.clipboard.writeText(orderText).then(() => {
-                console.log('Чек успешно скопирован');
+                console.log('Данные заказа скопированы в буфер');
             }).catch(err => {
-                console.error('Ошибка автоматического копирования: ', err);
+                console.error('Ошибка копирования: ', err);
             });
 
-            // Включаем красивое модальное окно поверх интерфейса
+            // Открываем модальное окно перенаправления
             const modal = document.getElementById('orderModal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
@@ -378,7 +377,7 @@
         }
 
         function redirectToManager() {
-            // Используем нативный метод Telegram SDK для перехода по внешней ссылке на юзера
+            // Мгновенный нативный переход в личку к указанному юзернейму
             tg.openTelegramLink('https://t.me/Delorean1234');
         }
 
@@ -389,10 +388,10 @@
             tg.HapticFeedback.impactOccurred('light');
         }
 
-        // --- ИНТЕРАКТИВНЫЙ СКРИПТ ЖЕЛТЫХ ТОЧЕК ---
+        // --- ТОПОГРАФИЧЕСКИЙ СКРИПТ ЖЕЛТЫХ ЛИНИЙ ИЗ ВИДЕО ---
         const canvas = document.getElementById('dotsCanvas');
         const ctx = canvas.getContext('2d');
-        let pointer = { x: null, y: null, radius: 80 }; 
+        let pointer = { x: null, y: null, radius: 90 }; 
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -401,79 +400,52 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
+        // Считывание касаний для физики волн
         window.addEventListener('mousemove', (e) => { pointer.x = e.clientX; pointer.y = e.clientY; });
         window.addEventListener('mouseleave', () => { pointer.x = null; pointer.y = null; });
         window.addEventListener('touchstart', (e) => { if(e.touches.length > 0) { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; } });
         window.addEventListener('touchmove', (e) => { if(e.touches.length > 0) { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; } });
         window.addEventListener('touchend', () => { pointer.x = null; pointer.y = null; });
 
-        const dots = [];
-        const dotsCount = 45; 
-
-        for (let i = 0; i < dotsCount; i++) {
-            let rx = Math.random() * window.innerWidth;
-            let ry = Math.random() * window.innerHeight;
-            dots.push({
-                x: rx,
-                y: ry,
-                baseX: rx,
-                baseY: ry,
-                radius: Math.random() * 1.8 + 1, 
-                speedY: -(Math.random() * 0.3 + 0.15), 
-                angle: Math.random() * Math.PI * 2,    
-                angleSpeed: Math.random() * 0.02 + 0.01,
-                alpha: Math.random(), 
-                fadeSpeed: Math.random() * 0.008 + 0.004
-            });
-        }
+        let time = 0;
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            time += 0.0025; // Скорость течения волн ландшафта
 
-            dots.forEach(dot => {
-                dot.alpha += dot.fadeSpeed;
-                if (dot.alpha > 0.95 || dot.alpha < 0.15) {
-                    dot.fadeSpeed = -dot.fadeSpeed;
-                }
-                let currentAlpha = Math.max(0.15, Math.min(0.95, dot.alpha));
+            const dotDensity = 14; // Расстояние между точками в линии
+            const lineSpacing = 32; // Расстояние между слоями волн
+            const numLines = Math.ceil(canvas.height / lineSpacing) + 4;
 
-                dot.baseY += dot.speedY;
-                dot.angle += dot.angleSpeed;
-                let currentX = dot.baseX + Math.sin(dot.angle) * 8;
-                let currentY = dot.baseY;
+            for (let l = -2; l < numLines; l++) {
+                let baseY = l * lineSpacing;
 
-                if (pointer.x !== null && pointer.y !== null) {
-                    let dx = currentX - pointer.x;
-                    let dy = currentY - pointer.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
+                for (let x = 0; x <= canvas.width; x += dotDensity) {
                     
-                    if (distance < pointer.radius) {
-                        let force = (pointer.radius - distance) / pointer.radius;
-                        let forceX = (dx / distance) * force * 35;
-                        let forceY = (dy / distance) * force * 35;
-                        currentX += forceX;
-                        currentY += forceY;
+                    // Формула сложного наложения синусоид для эффекта рельефной карты из видео
+                    let wave1 = Math.sin(x * 0.0035 + time + l * 0.16) * 28;
+                    let wave2 = Math.cos(x * 0.0075 - time * 0.7 + l * 0.28) * 14;
+                    let wave3 = Math.sin(x * 0.018 + time * 1.3) * 4;
+                    
+                    let y = baseY + wave1 + wave2 + wave3;
+
+                    let drawX = x;
+                    let drawY = y;
+
+                    // Интерактивное физическое отталкивание линий от пальца
+                    if (pointer.x !== null && pointer.y !== null) {
+                        let dx = x - pointer.x;
+                        let dy = y - pointer.y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < pointer.radius) {
+                            let force = (pointer.radius - dist) / pointer.radius;
+                            drawX += (dx / dist) * force * 24;
+                            drawY += (dy / dist) * force * 24;
+                        }
                     }
-                }
 
-                ctx.beginPath();
-                ctx.arc(currentX, currentY, dot.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(254, 204, 40, ${currentAlpha})`; 
-                ctx.shadowBlur = 6; 
-                ctx.shadowColor = 'rgba(254, 204, 40, 0.4)';
-                ctx.fill();
+                    // Переливающийся альфа-канал рельефа для глубины объема
+                    let alphaFactor = (Math.sin(x * 0.0025 + time + l * 0.12) + 1) / 2;
+                    let currentAlpha = 0.06 + alphaFactor * 0.18;
 
-                if (dot.baseY < -10) {
-                    dot.baseY = canvas.height + 10;
-                    dot.baseX = Math.random() * canvas.width;
-                }
-            });
-
-            ctx.shadowBlur = 0; 
-            requestAnimationFrame(animate);
-        }
-
-        animate();
-    </script>
-</body>
-</html>
+                    // Рисуем микроточку
