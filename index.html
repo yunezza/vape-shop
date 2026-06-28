@@ -791,13 +791,16 @@
         }
 
         function cartCount() {
-            return Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+            // Гарантируем, что складываем числа, а не строки
+            return Object.values(cart).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
         }
 
         function cartTotal() {
             return Object.entries(cart).reduce((sum, [id, qty]) => {
                 const product = findProduct(id);
-                return product ? sum + product.price * qty : sum;
+                // Жестко переводим количество в число
+                const validQty = parseInt(qty, 10) || 0; 
+                return product ? sum + (product.price * validQty) : sum;
             }, 0);
         }
 
@@ -897,7 +900,7 @@
             price.textContent = formatPrice(product.price);
             card.appendChild(price);
 
-            const qty = cart[product.id] || 0;
+            const qty = parseInt(cart[product.id], 10) || 0;
             if (qty > 0) {
                 card.appendChild(buildQtyStepper(product.id, qty));
             } else {
@@ -918,20 +921,23 @@
             const minusBtn = document.createElement('button');
             minusBtn.className = 'qty-btn';
             minusBtn.textContent = '−';
+            // ВАЖНО: передаем -1
             minusBtn.addEventListener('click', () => changeQty(productId, -1));
 
             const value = document.createElement('span');
             value.className = 'qty-value';
-            value.textContent = qty;
+            value.textContent = parseInt(qty, 10) || 0;
 
             const plusBtn = document.createElement('button');
             plusBtn.className = 'qty-btn';
             plusBtn.textContent = '+';
+            // ВАЖНО: передаем 1
             plusBtn.addEventListener('click', () => changeQty(productId, 1));
 
             stepper.appendChild(minusBtn);
             stepper.appendChild(value);
             stepper.appendChild(plusBtn);
+            
             return stepper;
         }
 
@@ -939,12 +945,15 @@
            КОРЗИНА
            ============================================================ */
         function addToCart(productId) {
-            const currentQty = cart[productId] || 0;
+            // Принудительно делаем текущее количество числом
+            const currentQty = parseInt(cart[productId] || 0, 10);
+            
             if (currentQty + 1 > 99) {
                 showToast('Максимальное количество!');
                 tg.HapticFeedback?.notificationOccurred?.('warning');
                 return;
             }
+            
             cart[productId] = currentQty + 1;
             tg.HapticFeedback?.notificationOccurred?.('success');
             showToast('Добавлено в корзину');
@@ -952,8 +961,10 @@
         }
 
         function changeQty(productId, delta) {
-            const currentQty = cart[productId] || 0;
-            const next = currentQty + delta;
+            // Строго переводим и текущее количество, и дельту (шаг) в числа
+            const currentQty = parseInt(cart[productId] || 0, 10);
+            const numDelta = parseInt(delta, 10);
+            const next = currentQty + numDelta;
             
             if (next > 99) {
                 showToast('Максимальное количество!');
@@ -1026,11 +1037,13 @@
             info.appendChild(price);
             row.appendChild(info);
 
-            row.appendChild(buildQtyStepper(product.id, qty));
+            // И здесь тоже перестраховываемся
+            const validQty = parseInt(qty, 10) || 0;
+            row.appendChild(buildQtyStepper(product.id, validQty));
 
             const lineTotal = document.createElement('div');
             lineTotal.className = 'cart-item-line-total';
-            lineTotal.textContent = formatPrice(product.price * qty);
+            lineTotal.textContent = formatPrice(product.price * validQty);
             row.appendChild(lineTotal);
 
             const removeBtn = document.createElement('button');
@@ -1120,7 +1133,9 @@
             entries.forEach(([id, qty], index) => {
                 const product = findProduct(id);
                 if (!product) return;
-                text += `${index + 1}. ${product.name} × ${qty} — ${formatPrice(product.price * qty)}\n`;
+                
+                const validQty = parseInt(qty, 10) || 0;
+                text += `${index + 1}. ${product.name} × ${validQty} — ${formatPrice(product.price * validQty)}\n`;
             });
             text += `\n💵 Общая сумма: ${formatPrice(cartTotal())}`;
             return text;
