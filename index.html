@@ -8,12 +8,11 @@
     <style>
         :root {
             --bg-color: #050505;
-            --card-bg: #121212;
-            --card-border: rgba(212, 175, 55, 0.15);
+            --card-bg: rgba(18, 18, 18, 0.65); /* Сделали карты полупрозрачными для эффекта стекла */
+            --card-border: rgba(212, 175, 55, 0.2);
             --text-main: #f5f5f7;
             --text-hint: #8e8e93;
             
-            /* Сложный золотой градиент для переливания */
             --gold-gradient: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%);
             --gold-solid: #d4af37;
             --gold-glow: rgba(212, 175, 55, 0.3);
@@ -31,9 +30,21 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Премиальный глянцевый хэдер */
+        /* Настройки интерактивного фона */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Задний план */
+            pointer-events: none;
+            background: #050505;
+        }
+
+        /* Глянцевый хэдер */
         header {
-            background: rgba(10, 10, 10, 0.8);
+            background: rgba(10, 10, 10, 0.6);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             position: sticky;
@@ -52,14 +63,14 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Поисковая строка */
         .search-container {
             padding: 0 15px;
             margin-top: 15px;
         }
         .search-bar {
             width: 100%;
-            background: #1c1c1e;
+            background: rgba(28, 28, 30, 0.7);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             padding: 12px 15px;
             border-radius: 12px;
@@ -73,7 +84,6 @@
             border-color: var(--gold-solid);
         }
 
-        /* Категории товаров */
         .categories {
             display: flex;
             gap: 8px;
@@ -83,7 +93,7 @@
         }
         .categories::-webkit-scrollbar { display: none; }
         .cat-btn {
-            background: #1c1c1e;
+            background: rgba(28, 28, 30, 0.7);
             color: var(--text-hint);
             border: 1px solid transparent;
             padding: 8px 16px;
@@ -101,9 +111,11 @@
             box-shadow: 0 4px 12px var(--gold-glow);
         }
 
-        /* Приветственный блок */
+        /* Эффект матового стекла (Glassmorphism) для контента */
         .welcome-box {
-            background: linear-gradient(135deg, #161616 0%, #0c0c0c 100%);
+            background: rgba(22, 22, 22, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--card-border);
             padding: 20px;
             border-radius: 24px;
@@ -131,11 +143,9 @@
         }
         .welcome-box p { margin: 0; color: var(--text-hint); font-size: 13px; }
 
-        /* Контентные страницы */
         .page { display: none; padding: 0 15px; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
 
-        /* Карточки товаров */
         .catalog {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -144,18 +154,20 @@
         }
         .product-card {
             background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 14px;
             text-align: center;
             border: 1px solid var(--card-border);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: transform 0.2s, border-color 0.3s;
             animation: scaleUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .product-card:active { transform: scale(0.96); }
         
         .img-container {
-            background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(212,175,55,0.05) 100%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, rgba(212,175,55,0.04) 100%);
             height: 115px;
             border-radius: 16px;
             margin-bottom: 12px;
@@ -186,7 +198,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Кнопки с переливом золота */
         .btn {
             background: var(--gold-gradient);
             color: #000;
@@ -206,9 +217,9 @@
         }
         .btn:active { transform: scale(0.95); }
 
-        /* Элементы корзины */
         .cart-item {
             background: var(--card-bg);
+            backdrop-filter: blur(10px);
             border-radius: 18px;
             padding: 14px 18px;
             margin-bottom: 12px;
@@ -224,10 +235,9 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            background: #1c1c1e;
+            background: rgba(28, 28, 30, 0.8);
             padding: 6px 12px;
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.03);
         }
         .q-btn {
             background: none; border: none; color: #fff;
@@ -235,11 +245,10 @@
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        /* Премиальный нижний таббар */
         .tabbar {
             position: fixed;
             bottom: 0; left: 0; right: 0; height: 72px;
-            background: rgba(10, 10, 10, 0.85);
+            background: rgba(10, 10, 10, 0.65);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             display: flex;
@@ -255,9 +264,7 @@
             cursor: pointer; flex: 1; height: 100%; justify-content: center;
             position: relative; transition: color 0.3s;
         }
-        .tab-item.active {
-            color: #fff;
-        }
+        .tab-item.active { color: #fff; }
         .tab-icon { font-size: 22px; margin-bottom: 4px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .tab-item.active .tab-icon {
             transform: scale(1.2);
@@ -266,7 +273,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Золотой счетчик на корзине */
         .badge {
             position: absolute; top: 12px; right: calc(50% - 24px);
             background: var(--gold-gradient); color: #000; font-size: 10px;
@@ -276,9 +282,9 @@
             animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        /* Профиль */
         .profile-card {
             background: var(--card-bg);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 18px;
             margin-top: 15px;
@@ -291,7 +297,6 @@
         }
         .profile-row:last-child { border: none; }
 
-        /* Тайминги и ключевые кадры анимаций */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes scaleUp { from { opacity: 0; transform: scale(0.93); } to { opacity: 1; transform: scale(1); } }
@@ -300,6 +305,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Живой интерактивный бэкграунд -->
+    <canvas id="bg-canvas"></canvas>
 
     <header id="header-title">Farfei Shop</header>
 
@@ -321,9 +329,7 @@
             <p>Добро пожаловать в премиальный клуб Farfei Shop. Стиль в каждой детали.</p>
         </div>
 
-        <div id="product-catalog" class="catalog">
-            <!-- Товары рендерятся через JS с поддержкой категорий -->
-        </div>
+        <div id="product-catalog" class="catalog"></div>
     </div>
 
     <!-- Вкладка 2: Корзина -->
@@ -331,7 +337,7 @@
         <div style="font-size:18px; font-weight:700; margin: 20px 0 12px 0;">🛒 Твой выбор</div>
         <div id="cart-items" style="margin-bottom: 20px;"></div>
         
-        <div style="background: var(--card-bg); padding: 18px; border-radius: 20px; border: 1px solid var(--card-border);">
+        <div style="background: var(--card-bg); backdrop-filter: blur(10px); padding: 18px; border-radius: 20px; border: 1px solid var(--card-border);">
             <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 18px; margin-bottom: 15px;">
                 <span>Сумма заказа:</span>
                 <span id="cart-total" style="color: var(--gold-solid);">0 ₽</span>
@@ -351,7 +357,6 @@
         </div>
     </div>
 
-    <!-- Нижний бар навигации -->
     <nav class="tabbar">
         <button class="tab-item active" onclick="switchTab('home', this)">
             <span class="tab-icon">👑</span><span>Главная</span>
@@ -366,11 +371,81 @@
     </nav>
 
     <script>
+        // === ЛОГИКА ЖИВОГО ЗОЛОТОГО ФОНА (CANVAS) ===
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class GoldParticle {
+            constructor() {
+                this.reset();
+                this.y = Math.random() * canvas.height; // При старте раскидать по всему экрану
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 20;
+                this.size = Math.random() * 1.8 + 0.4; // Размер песчинок
+                this.speedY = Math.random() * -0.4 - 0.1; // Скорость движения вверх
+                this.speedX = Math.random() * 0.2 - 0.1; // Легкое покачивание из стороны в сторону
+                this.alpha = Math.random() * 0.5; // Начальная прозрачность
+                this.alphaSpeed = Math.random() * 0.015 + 0.005; // Скорость мерцания
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.alpha += this.alphaSpeed;
+                
+                // Эффект плавного мерцания (переливания)
+                if (this.alpha > 0.9 || this.alpha < 0.1) {
+                    this.alphaSpeed = -this.alphaSpeed;
+                }
+                
+                // Если точка улетела за верх экрана — пускаем новую снизу
+                if (this.y < 0) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(212, 175, 55, ${Math.abs(this.alpha)})`;
+                ctx.shadowBlur = this.size * 2;
+                ctx.shadowColor = '#d4af37'; // Золотое свечение вокруг точек
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Создаем пул из 65 золотых частиц
+        for (let i = 0; i < 65; i++) {
+            particles.push(new GoldParticle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Убираем тень для производительности перед рисованием других элементов, если нужно
+            ctx.shadowBlur = 0; 
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+
+        // === ОСНОВНАЯ ЛОГИКА ТЕЛЕГРАМ-МАГАЗИНА ===
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // База данных товаров с привязкой категорий
         const products = [
             { id: 1, category: 'devices', name: 'Испаритель X-Pod Ultra', price: 1500, icon: '💨' },
             { id: 2, category: 'liquids', name: 'Жидкость Berry Mix 30мл', price: 550, icon: '🍓' },
@@ -381,7 +456,6 @@
         let currentCategory = 'all';
         let cart = {};
 
-        // Настройка данных пользователя
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const firstName = tg.initDataUnsafe.user.first_name;
             document.getElementById('welcome-username').innerText = firstName;
@@ -389,7 +463,6 @@
             document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
         }
 
-        // Рендеринг каталога
         function renderCatalog(itemsToRender) {
             const catalogContainer = document.getElementById('product-catalog');
             catalogContainer.innerHTML = itemsToRender.map(prod => `
@@ -517,7 +590,6 @@
             }));
         }
 
-        // Первая инициализация витрины
         renderCatalog(products);
     </script>
 </body>
