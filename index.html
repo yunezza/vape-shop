@@ -56,17 +56,115 @@
             100% { background-position: 200% center; }
         }
 
-        /* Верхняя панель (Header) */
+        /* Верхняя панель (Header) с центрированием и кнопкой */
         header {
             background-color: var(--card-bg);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             padding: 15px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
             font-size: 22px;
             font-weight: 800;
             letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* КНОПКА ТРИ ПОЛОСКИ (БУРГЕР) */
+        .burger-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 22px;
+            height: 16px;
+            padding: 0;
+            z-index: 10;
+        }
+
+        .burger-btn span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: var(--gold-accent);
+            border-radius: 2px;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+        }
+
+        /* БОКОВОЕ МЕНЮ КАТЕГОРИЙ (DRAWER) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -270px; /* Спрятано слева */
+            width: 270px;
+            height: 100%;
+            background: rgba(15, 15, 15, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 5px 0 30px rgba(0,0,0,0.7);
+            z-index: 3000;
+            /* Премиальная анимация выталкивания iOS-style */
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 24px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active {
+            transform: translateX(270px); /* Выезжает на свою ширину */
+        }
+
+        /* Темная вуаль-подложка при открытии меню */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 2900;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+        }
+
+        /* Элементы списка категорий */
+        .category-list {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .category-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #fff;
+            padding: 14px 16px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .category-item:active {
+            background: rgba(254, 204, 47, 0.15);
+            border-color: rgba(254, 204, 47, 0.3);
+            transform: scale(0.97);
         }
 
         /* Анимация плавного переключения вкладок */
@@ -214,14 +312,12 @@
             -webkit-mask-position: center;
             mask-position: center;
             
-            /* Состояние выключенных вкладок */
             opacity: 0.35;
             filter: grayscale(1);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s, filter 0.25s;
             will-change: transform, opacity;
         }
 
-        /* Стиль для активной иконки (загорается и пружинит вверх) */
         .tab-item.active .tab-icon {
             opacity: 1;
             filter: grayscale(0);
@@ -283,6 +379,21 @@
 
     <canvas id="dotsCanvas"></canvas>
 
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div id="sidebarMenu" class="sidebar">
+        <h3 class="gold-shimmer-text" style="margin: 10px 0 0 0; font-size: 22px; font-weight: 800;">Категории</h3>
+        <p style="font-size: 11px; color: #777; margin: 4px 0 0 0;">Выберите нужный раздел</p>
+        
+        <div class="category-list">
+            <button class="category-item" onclick="selectCategory('Все товары')">✨ Все товары</button>
+            <button class="category-item" onclick="selectCategory('Испарители')">💨 Испарители</button>
+            <button class="category-item" onclick="selectCategory('Жидкости')">🍓 Жидкости</button>
+            <button class="category-item" onclick="selectCategory('Одноразки')">🔋 Одноразки</button>
+            <button class="category-item" onclick="selectCategory('Аксессуары')">🛠 Аксессуары</button>
+        </div>
+    </div>
+
     <div id="orderModal" class="modal-overlay">
         <div class="modal-content">
             <div style="font-size: 45px; margin-bottom: 12px;">📲</div>
@@ -296,9 +407,18 @@
     </div>
 
     <div class="content-wrapper">
-        <header><span class="gold-shimmer-text">Vape Shop</span></header>
+        <header>
+            <button class="burger-btn" onclick="toggleSidebar()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <span class="gold-shimmer-text">Vape Shop</span>
+        </header>
 
         <div id="home-page" class="page active">
+            <h4 id="currentCategoryTitle" style="margin: 5px 0 15px 0; font-weight: 600; color: #aaa; font-size: 14px;">Раздел: Все товары</h4>
+            
             <div class="catalog">
                 <div class="product-card">
                     <div style="background:rgba(255,255,255,0.05); height:100px; border-radius:8px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; font-size: 32px;">💨</div>
@@ -364,7 +484,42 @@
             }
         } catch(e) { console.log("Telegram SDK Safe Mode Active"); }
 
-        // Переключение страниц
+        // --- ЛОГИКА БОКОВОГО МЕНЮ (КАТЕГОРИИ) ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            tg.HapticFeedback?.impactOccurred?.('medium'); // Вибрация средней силы при открытии/закрытии
+
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                setTimeout(() => overlay.style.display = 'none', 300);
+            } else {
+                overlay.style.display = 'block';
+                setTimeout(() => {
+                    sidebar.classList.add('active');
+                    overlay.classList.add('active');
+                }, 10);
+            }
+        }
+
+        function selectCategory(categoryName) {
+            // Меняем текст выбранной категории на главном экране
+            document.getElementById('currentCategoryTitle').innerText = `Раздел: ${categoryName}`;
+            
+            // Если мы были на другой вкладке (например, в профиле) — возвращаем пользователя в "Домик" (Каталог)
+            const homeTabButton = document.querySelector('.tabbar .tab-item:nth-child(1)');
+            switchTab('home', homeTabButton);
+
+            // Закрываем боковое меню
+            toggleSidebar();
+
+            // Легкий виброотклик при выборе
+            tg.HapticFeedback?.notificationOccurred?.('success');
+        }
+
+        // Переключение основных страниц (Домик / Корзина / Профиль)
         function switchTab(pageId, element) {
             const currentPage = document.querySelector('.page.active');
             const targetPage = document.getElementById(`${pageId}-page`);
@@ -380,7 +535,7 @@
             tg.HapticFeedback?.impactOccurred?.('light'); 
         }
 
-        // Логика корзины
+        // Логика работы корзины
         let cart = [];
         function addToCart(name, price) {
             cart.push({ name, price });
@@ -415,7 +570,7 @@
 
             if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
                 navigator.clipboard.writeText(orderText).catch(err => {
-                    print('Ошибка буфера обмена:', err);
+                    console.log('Ошибка буфера обмена:', err);
                 });
             }
 
