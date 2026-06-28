@@ -215,6 +215,7 @@
             padding: 40px 10px;
         }
 
+        /* КАРТОЧКА ТОВАРА */
         .product-card {
             background-color: var(--card-bg);
             backdrop-filter: blur(15px);
@@ -223,7 +224,8 @@
             padding: 12px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.04);
-            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+            /* Добавили плавный переход для свечения (box-shadow) */
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
         }
@@ -231,6 +233,12 @@
         .product-card:active {
             transform: scale(0.97);
             border-color: rgba(187, 134, 252, 0.2);
+        }
+
+        /* Неоновая обводка карточки при добавлении в корзину */
+        .product-card.glow-border {
+            border-color: var(--gold-accent) !important;
+            box-shadow: 0 0 18px rgba(254, 204, 47, 0.45) !important;
         }
 
         /* Боксы изображений внутри карточек товаров */
@@ -286,6 +294,11 @@
             opacity: 0.35;
             cursor: not-allowed;
             transform: none !important;
+        }
+
+        /* Прячем дубликат кнопки "Оформить заказ" если включена нативная от Telegram */
+        body.tg-native #checkoutBtn {
+            display: none !important;
         }
 
         .btn-gold {
@@ -409,6 +422,7 @@
             align-items: center;
             justify-content: center;
             padding: 0 4px;
+            z-index: 2;
         }
 
         .cart-badge.show {
@@ -445,6 +459,74 @@
             filter: grayscale(0);
             transform: scale(1.22) translateY(-2px);
         }
+
+        /* --- АНИМАЦИЯ ИКОНКИ КОРЗИНЫ ПРИ ДОБАВЛЕНИИ (КРУГИ ПО ВОДЕ) --- */
+        .cart-anim-ring {
+            position: absolute;
+            /* Смещение подобрано с учетом margin-bottom иконки */
+            top: 40%;
+            left: 50%;
+            width: 32px;
+            height: 32px;
+            transform: translate(-50%, -50%) scale(0.5);
+            border-radius: 50%;
+            border: 2px solid var(--gold-accent);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Запуск расходящихся колец обводки */
+        .tab-icon-wrap.animate-add .ring1 {
+            animation: cartRingPulse 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .tab-icon-wrap.animate-add .ring2 {
+            animation: cartRingPulse 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.15s;
+        }
+
+        @keyframes cartRingPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+                border-width: 3px;
+                box-shadow: 0 0 15px var(--gold-accent), inset 0 0 10px var(--gold-accent);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2.2);
+                opacity: 0;
+                border-width: 0px;
+                box-shadow: 0 0 30px rgba(254, 203, 47, 0), inset 0 0 20px rgba(254, 203, 47, 0);
+            }
+        }
+
+        /* Иконка радостно подпрыгивает */
+        .tab-icon-wrap.animate-add .tab-icon {
+            animation: cartIconPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            background: var(--gold-accent);
+            filter: grayscale(0);
+            opacity: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes cartIconPop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.35) translateY(-3px) rotate(-10deg); }
+            70% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        /* Бейдж вспыхивает белым */
+        .tab-icon-wrap.animate-add .cart-badge {
+            animation: badgePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes badgePop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); background: #ffffff; color: #000; box-shadow: 0 0 10px #fff; }
+            100% { transform: scale(1); background: var(--gold-accent); color: #000; box-shadow: none; }
+        }
+
 
         /* Стилизация иконок меню категорий и каталога */
         .sidebar-icon { background: var(--gold-accent); width: 20px; height: 20px; flex-shrink: 0; }
@@ -695,7 +777,10 @@
                 <span>Каталог</span>
             </button>
             <button class="tab-item" onclick="switchTab('cart', this)">
-                <div class="tab-icon-wrap">
+                <div class="tab-icon-wrap" id="cartIconWrapper">
+                    <div class="cart-anim-ring ring1"></div>
+                    <div class="cart-anim-ring ring2"></div>
+                    
                     <div class="tab-icon icon-cart"></div>
                     <span class="cart-badge" id="cartBadge">0</span>
                 </div>
@@ -808,6 +893,38 @@
         }
 
         /* ============================================================
+           АНИМАЦИИ (ОБВОДКА И ИКОНКА)
+           ============================================================ */
+        function triggerCartMenuAnimation() {
+            const cartWrap = document.getElementById('cartIconWrapper');
+            if (!cartWrap) return;
+            
+            // Сбрасываем класс, чтобы анимация проигралась заново
+            cartWrap.classList.remove('animate-add');
+            void cartWrap.offsetWidth; // Хак для браузера: заставляем его перерисовать элемент
+            cartWrap.classList.add('animate-add');
+            
+            // Убираем класс после окончания CSS анимации (600мс)
+            setTimeout(() => {
+                cartWrap.classList.remove('animate-add');
+            }, 600);
+        }
+
+        function triggerCardGlow(productId) {
+            // Ищем все карточки товара с нужным ID (и в каталоге, и в корзине)
+            const cards = document.querySelectorAll(`.product-card[data-id="${productId}"]`);
+            cards.forEach(card => {
+                card.classList.remove('glow-border');
+                void card.offsetWidth;
+                card.classList.add('glow-border');
+                
+                setTimeout(() => {
+                    card.classList.remove('glow-border');
+                }, 500);
+            });
+        }
+
+        /* ============================================================
            САЙДБАР / КАТЕГОРИИ
            ============================================================ */
         function renderSidebarCategories() {
@@ -878,6 +995,7 @@
         function buildProductCard(product) {
             const card = document.createElement('div');
             card.className = 'product-card';
+            card.dataset.id = product.id; // Добавляем ID для анимации обводки
 
             const imgBox = document.createElement('div');
             imgBox.className = 'product-img-box';
@@ -970,6 +1088,10 @@
             cart[productId] = currentQty + 1;
             tg.HapticFeedback?.notificationOccurred?.('success');
             showToast('Добавлено в корзину');
+            
+            triggerCartMenuAnimation(); // Анимация кругов по воде на иконке меню
+            triggerCardGlow(productId); // Анимация светящейся обводки на карточке
+
             onCartChanged();
         }
 
@@ -988,6 +1110,10 @@
                 delete cart[productId];
             } else {
                 cart[productId] = next;
+                if (delta > 0) {
+                    triggerCartMenuAnimation(); // Если добавляем - тоже красиво пульсируем
+                    triggerCardGlow(productId); // И карточку тоже подсвечиваем
+                }
             }
             
             tg.HapticFeedback?.impactOccurred?.('light');
@@ -1037,6 +1163,7 @@
         function buildCartRow(product, qty) {
             const row = document.createElement('div');
             row.className = 'cart-item-row';
+            row.dataset.id = product.id; // Чтобы корзина тоже подсвечивалась при плюсе
 
             const info = document.createElement('div');
             info.className = 'cart-item-info';
