@@ -288,7 +288,7 @@
             transform: none !important;
         }
 
-        /* Прячем дубликат кнопки "Оформить заказ" если включена нативная от Telegram */
+        /* Скрываем внутреннюю фиолетовую кнопку, если Telegram показал свою системную */
         body.tg-native #checkoutBtn {
             display: none !important;
         }
@@ -638,7 +638,7 @@
         <h3 class="gold-shimmer-text" style="margin: 10px 0 0 0; font-size: 22px; font-weight: 800;">Категории</h3>
         <p style="font-size: 11px; color: #777; margin: 4px 0 0 0;">Выберите нужный раздел</p>
 
-        <div class="category-list" id="categoryList"></div>
+        <div class="category-list" id="categoryList"><!-- рендерится из CATEGORIES в JS --></div>
     </div>
 
     <div id="orderModal" class="modal-overlay">
@@ -670,7 +670,7 @@
         <div id="home-page" class="page active">
             <h4 id="currentCategoryTitle" style="margin: 5px 0 15px 0; font-weight: 600; color: #aaa; font-size: 14px;">Раздел: Все товары</h4>
 
-            <div class="catalog" id="catalogGrid"></div>
+            <div class="catalog" id="catalogGrid"><!-- рендерится из PRODUCTS в JS --></div>
         </div>
 
         <div id="cart-page" class="page">
@@ -795,17 +795,18 @@
         }
 
         function cartCount() {
-            // Гарантируем, что складываем числа, а не строки
             return Object.values(cart).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
         }
 
         function cartTotal() {
-            return Object.entries(cart).reduce((sum, [id, qty]) => {
+            let sum = 0;
+            for (let id in cart) {
                 const product = findProduct(id);
-                // Жестко переводим количество в число
-                const validQty = parseInt(qty, 10) || 0; 
-                return product ? sum + (product.price * validQty) : sum;
-            }, 0);
+                if (product) {
+                    sum += product.price * (parseInt(cart[id], 10) || 0);
+                }
+            }
+            return sum;
         }
 
         /* ============================================================
@@ -911,7 +912,12 @@
                 const addBtn = document.createElement('button');
                 addBtn.className = 'btn';
                 addBtn.textContent = 'В корзину';
-                addBtn.addEventListener('click', () => addToCart(product.id));
+                // preventDefault блокирует случайные двойные клики на телефоне
+                addBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addToCart(product.id);
+                });
                 card.appendChild(addBtn);
             }
 
@@ -925,8 +931,11 @@
             const minusBtn = document.createElement('button');
             minusBtn.className = 'qty-btn';
             minusBtn.textContent = '−';
-            // ВАЖНО: передаем -1
-            minusBtn.addEventListener('click', () => changeQty(productId, -1));
+            minusBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                changeQty(productId, -1);
+            });
 
             const value = document.createElement('span');
             value.className = 'qty-value';
@@ -935,8 +944,11 @@
             const plusBtn = document.createElement('button');
             plusBtn.className = 'qty-btn';
             plusBtn.textContent = '+';
-            // ВАЖНО: передаем 1
-            plusBtn.addEventListener('click', () => changeQty(productId, 1));
+            plusBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                changeQty(productId, 1);
+            });
 
             stepper.appendChild(minusBtn);
             stepper.appendChild(value);
@@ -949,7 +961,6 @@
            КОРЗИНА
            ============================================================ */
         function addToCart(productId) {
-            // Принудительно делаем текущее количество числом
             const currentQty = parseInt(cart[productId] || 0, 10);
             
             if (currentQty + 1 > 99) {
@@ -965,7 +976,6 @@
         }
 
         function changeQty(productId, delta) {
-            // Строго переводим и текущее количество, и дельту (шаг) в числа
             const currentQty = parseInt(cart[productId] || 0, 10);
             const numDelta = parseInt(delta, 10);
             const next = currentQty + numDelta;
@@ -1007,7 +1017,8 @@
                 const goBtn = document.createElement('button');
                 goBtn.className = 'btn-ghost';
                 goBtn.textContent = 'Перейти в каталог';
-                goBtn.addEventListener('click', () => {
+                goBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
                     const homeTabButton = document.querySelector('.tabbar .tab-item:nth-child(1)');
                     switchTab('home', homeTabButton);
                 });
@@ -1041,7 +1052,6 @@
             info.appendChild(price);
             row.appendChild(info);
 
-            // И здесь тоже перестраховываемся
             const validQty = parseInt(qty, 10) || 0;
             row.appendChild(buildQtyStepper(product.id, validQty));
 
@@ -1054,7 +1064,11 @@
             removeBtn.className = 'cart-remove-btn';
             removeBtn.innerHTML = '&times;';
             removeBtn.setAttribute('aria-label', 'Удалить из корзины');
-            removeBtn.addEventListener('click', () => removeFromCart(product.id));
+            removeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                removeFromCart(product.id);
+            });
             row.appendChild(removeBtn);
 
             return row;
@@ -1067,26 +1081,22 @@
             badge.classList.toggle('show', count > 0);
         }
 
+        // Защита системной кнопки Telegram от спама кликами (Debounce)
         let mainBtnTimer = null;
         function syncMainButton() {
             if (!hasMainButton) return;
             
-            // Очищаем предыдущий таймер, чтобы не спамить API Telegram
             if (mainBtnTimer) clearTimeout(mainBtnTimer);
             
             mainBtnTimer = setTimeout(() => {
                 const count = cartCount();
                 if (count > 0) {
-                    // Используем setParams вместо setText, это надежнее внутри Telegram
-                    tg.MainButton.setParams({
-                        text: `Оформить заказ • ${formatPrice(cartTotal())}`,
-                        is_visible: true,
-                        is_active: true
-                    });
+                    tg.MainButton.setText(`Оформить заказ • ${formatPrice(cartTotal())}`);
+                    if (!tg.MainButton.isVisible) tg.MainButton.show();
                 } else {
                     tg.MainButton.hide();
                 }
-            }, 60); // Небольшая задержка, чтобы Telegram точно поймал последний клик
+            }, 150);
         }
 
         function syncClosingConfirmation() {
@@ -1159,7 +1169,6 @@
             if (cartCount() === 0) return;
             const orderText = buildOrderText();
 
-            // Безопасное копирование с обратной связью
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(orderText)
                     .then(() => {
@@ -1170,7 +1179,6 @@
                         showToast('Заказ сформирован (скопируйте вручную, если потребуется)');
                     });
             } else {
-                // Fallback для старых устройств
                 showToast('Заказ готов к отправке');
             }
 
@@ -1179,7 +1187,6 @@
             managerBtn.textContent = `Написать @${CONFIG.managerUsername}`;
             modal.style.display = 'flex';
             
-            // Небольшая задержка для плавности анимации
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     modal.classList.add('active');
@@ -1194,8 +1201,6 @@
             } catch (e) {
                 window.open(`https://t.me/${CONFIG.managerUsername}`, '_blank');
             }
-            // Заказ передан менеджеру — очищаем корзину, чтобы при повторном
-            // открытии мини-аппа не отправить тот же список повторно.
             cart = {};
             onCartChanged();
             closeModal();
@@ -1219,7 +1224,6 @@
             if (sidebar.classList.contains('active')) {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
-                // Ждем окончания CSS анимации (0.3s) перед display: none
                 setTimeout(() => {
                     if (!sidebar.classList.contains('active')) {
                         overlay.style.display = 'none';
@@ -1227,7 +1231,6 @@
                 }, 300); 
             } else {
                 overlay.style.display = 'block';
-                // Заставляем браузер применить display:block перед добавлением класса
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
                         sidebar.classList.add('active');
@@ -1328,7 +1331,6 @@
             rafId = requestAnimationFrame(animate);
         }
 
-        // Не тратим батарею, когда вкладка/мини-апп не виден.
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 if (rafId) cancelAnimationFrame(rafId);
