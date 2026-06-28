@@ -7,11 +7,11 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #000000; /* Чисто черный фон */
+            --bg-color: #000000; 
             --text-color: #ffffff;
             --accent-color: #bb86fc;
-            --card-bg: rgba(35, 35, 35, 0.6); /* Полупрозрачный фон карточек, чтобы сетка была видна */
-            --gold-accent: #fecb2f; /* Золотой цвет для заказа и элементов */
+            --card-bg: rgba(35, 35, 35, 0.6); 
+            --gold-accent: #fecb2f; 
         }
 
         body {
@@ -26,7 +26,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Канвас для топографических линий из видео */
+        /* Канвас для топографических линий */
         #dotsCanvas {
             position: fixed;
             top: 0;
@@ -190,7 +190,7 @@
             transform: scale(1.22) translateY(-2px);
         }
 
-        /* Нативное модальное окно перенаправления */
+        /* Модальное окно перенаправления */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -236,7 +236,7 @@
             <div style="font-size: 45px; margin-bottom: 12px;">📲</div>
             <h3 style="margin: 0 0 8px 0; color: var(--gold-accent); font-size: 18px;">Заказ сформирован!</h3>
             <p style="font-size: 13px; color: #ccc; margin: 0 0 20px 0; line-height: 1.4;">
-                Список товаров уже скопирован в буфер обмена вашего телефона. Нажмите кнопку, перейдите к менеджеру и просто вставьте текст.
+                Список товаров скопирован в буфер обмена. Нажмите кнопку, перейдите к менеджеру и просто вставьте текст в поле ввода сообщения.
             </p>
             <button class="btn-gold" onclick="redirectToManager()">Написать @Delorean1234</button>
             <button onclick="closeModal()" style="background:none; border:none; color:#666; margin-top:14px; cursor:pointer; font-size: 12px; text-decoration: underline;">Закрыть</button>
@@ -301,14 +301,16 @@
     </div>
 
     <script>
-        // --- TG WEBAPP API ---
-        const tg = window.Telegram.WebApp;
-        tg.expand(); 
-
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
-            document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
-        }
+        // --- БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ TELEGRAM SDK ---
+        const tg = window.Telegram?.WebApp || { expand: () => {}, HapticFeedback: {}, openTelegramLink: (url) => window.open(url, '_blank') };
+        
+        try {
+            tg.expand(); 
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name || 'Клиент';
+                document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id || '-';
+            }
+        } catch(e) { console.log("Telegram SDK Init Safe Mode"); }
 
         function switchTab(pageId, element) {
             const currentPage = document.querySelector('.page.active');
@@ -325,14 +327,15 @@
             const headers = { 'home': 'Vape Shop', 'cart': 'Корзина', 'profile': 'Профиль' };
             document.getElementById('header-title').innerText = headers[pageId];
             
-            tg.HapticFeedback.impactOccurred('light'); 
+            // Безопасный вызов вибрации (не вызовет ошибку, если не поддерживается)
+            tg.HapticFeedback?.impactOccurred?.('light'); 
         }
 
         let cart = [];
         function addToCart(name, price) {
             cart.push({ name, price });
             updateCart();
-            tg.HapticFeedback.notificationOccurred('success'); 
+            tg.HapticFeedback?.notificationOccurred?.('success'); 
         }
 
         function updateCart() {
@@ -348,59 +351,67 @@
             totalEl.innerText = `${total.toLocaleString()} ₽`;
         }
 
-        // --- ЛОГИКА ОФОРМЛЕНИЯ ЗАКАЗА И ОТСЫЛКИ К @Delorean1234 ---
+        // --- БЕЗОПАСНАЯ СИСТЕМА ОФОРМЛЕНИЯ ЗАКАЗА ---
         function checkout() {
             if (cart.length === 0) return;
             
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             
-            // Формируем красивый структурированный текст чека
             let orderText = "👋 Привет! Хочу купить у вас товары:\n\n";
             cart.forEach((item, index) => {
                 orderText += `${index + 1}. ${item.name} — ${item.price} ₽\n`;
             });
             orderText += `\n💵 Общая сумма: ${total.toLocaleString()} ₽`;
 
-            // Копируем автоматически в буфер обмена телефона пользователя
-            navigator.clipboard.writeText(orderText).then(() => {
-                console.log('Данные заказа скопированы в буфер');
-            }).catch(err => {
-                console.error('Ошибка копирования: ', err);
-            });
+            // Защита: Проверяем, доступен ли буфер обмена в текущем браузере/сессии
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                navigator.clipboard.writeText(orderText).catch(err => {
+                    console.log('Не удалось записать в буфер автоматически:', err);
+                });
+            } else {
+                console.log('Буфер обмена заблокирован средой или отсутствует HTTPS');
+            }
 
-            // Открываем модальное окно перенаправления
+            // Окно откроется в любом случае, даже если буфер обмена выдал ошибку!
             const modal = document.getElementById('orderModal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
             
-            tg.HapticFeedback.notificationOccurred('success'); 
+            tg.HapticFeedback?.notificationOccurred?.('success'); 
         }
 
         function redirectToManager() {
-            // Мгновенный нативный переход в личку к указанному юзернейму
-            tg.openTelegramLink('https://t.me/Delorean1234');
+            try {
+                tg.openTelegramLink('https://t.me/Delorean1234');
+            } catch(e) {
+                window.open('https://t.me/Delorean1234', '_blank');
+            }
         }
 
         function closeModal() {
             const modal = document.getElementById('orderModal');
             modal.classList.remove('active');
             setTimeout(() => modal.style.display = 'none', 300);
-            tg.HapticFeedback.impactOccurred('light');
+            tg.HapticFeedback?.impactOccurred?.('light');
         }
 
-        // --- ТОПОГРАФИЧЕСКИЙ СКРИПТ ЖЕЛТЫХ ЛИНИЙ ИЗ ВИДЕО ---
+        // --- ОПТИМИЗИРОВАННЫЙ СКРИПТ ЦИФРОВЫХ ВОЛН ---
         const canvas = document.getElementById('dotsCanvas');
         const ctx = canvas.getContext('2d');
         let pointer = { x: null, y: null, radius: 90 }; 
 
+        const dotDensity = 16;  // Оптимизированный шаг точек
+        const lineSpacing = 34; // Оптимизированный шаг линий
+        let numLines = 0;
+
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            numLines = Math.ceil(canvas.height / lineSpacing) + 4; // Расчет вынесен из фреймрейта
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Считывание касаний для физики волн
         window.addEventListener('mousemove', (e) => { pointer.x = e.clientX; pointer.y = e.clientY; });
         window.addEventListener('mouseleave', () => { pointer.x = null; pointer.y = null; });
         window.addEventListener('touchstart', (e) => { if(e.touches.length > 0) { pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; } });
@@ -411,41 +422,45 @@
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            time += 0.0025; // Скорость течения волн ландшафта
-
-            const dotDensity = 14; // Расстояние между точками в линии
-            const lineSpacing = 32; // Расстояние между слоями волн
-            const numLines = Math.ceil(canvas.height / lineSpacing) + 4;
+            time += 0.003; 
 
             for (let l = -2; l < numLines; l++) {
                 let baseY = l * lineSpacing;
 
                 for (let x = 0; x <= canvas.width; x += dotDensity) {
-                    
-                    // Формула сложного наложения синусоид для эффекта рельефной карты из видео
                     let wave1 = Math.sin(x * 0.0035 + time + l * 0.16) * 28;
                     let wave2 = Math.cos(x * 0.0075 - time * 0.7 + l * 0.28) * 14;
-                    let wave3 = Math.sin(x * 0.018 + time * 1.3) * 4;
                     
-                    let y = baseY + wave1 + wave2 + wave3;
+                    let y = baseY + wave1 + wave2;
 
                     let drawX = x;
                     let drawY = y;
 
-                    // Интерактивное физическое отталкивание линий от пальца
                     if (pointer.x !== null && pointer.y !== null) {
                         let dx = x - pointer.x;
                         let dy = y - pointer.y;
                         let dist = Math.sqrt(dx * dx + dy * dy);
                         if (dist < pointer.radius) {
                             let force = (pointer.radius - dist) / pointer.radius;
-                            drawX += (dx / dist) * force * 24;
-                            drawY += (dy / dist) * force * 24;
+                            drawX += (dx / dist) * force * 22;
+                            drawY += (dy / dist) * force * 22;
                         }
                     }
 
-                    // Переливающийся альфа-канал рельефа для глубины объема
                     let alphaFactor = (Math.sin(x * 0.0025 + time + l * 0.12) + 1) / 2;
-                    let currentAlpha = 0.06 + alphaFactor * 0.18;
+                    let currentAlpha = 0.05 + alphaFactor * 0.16;
 
-                    // Рисуем микроточку
+                    ctx.beginPath();
+                    ctx.arc(drawX, drawY, 1.2, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(254, 203, 47, ${currentAlpha})`; 
+                    ctx.fill();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
