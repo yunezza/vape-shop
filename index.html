@@ -288,11 +288,6 @@
             transform: none !important;
         }
 
-        /* Скрываем внутреннюю фиолетовую кнопку, если Telegram показал свою системную */
-        body.tg-native #checkoutBtn {
-            display: none !important;
-        }
-
         .btn-gold {
             background-color: var(--gold-accent);
             color: #000;
@@ -638,7 +633,7 @@
         <h3 class="gold-shimmer-text" style="margin: 10px 0 0 0; font-size: 22px; font-weight: 800;">Категории</h3>
         <p style="font-size: 11px; color: #777; margin: 4px 0 0 0;">Выберите нужный раздел</p>
 
-        <div class="category-list" id="categoryList"><!-- рендерится из CATEGORIES в JS --></div>
+        <div class="category-list" id="categoryList"></div>
     </div>
 
     <div id="orderModal" class="modal-overlay">
@@ -670,7 +665,7 @@
         <div id="home-page" class="page active">
             <h4 id="currentCategoryTitle" style="margin: 5px 0 15px 0; font-weight: 600; color: #aaa; font-size: 14px;">Раздел: Все товары</h4>
 
-            <div class="catalog" id="catalogGrid"><!-- рендерится из PRODUCTS в JS --></div>
+            <div class="catalog" id="catalogGrid"></div>
         </div>
 
         <div id="cart-page" class="page">
@@ -774,9 +769,11 @@
         }
 
         if (hasMainButton) {
-            // Внутри настоящего Telegram-клиента добавляем класс для скрытия дублирующей кнопки
-            document.body.classList.add('tg-native');
-            tg.MainButton.onClick(checkout);
+            // Полностью отключаем и прячем системную кнопку Telegram, 
+            // так как она мешает и может баговать
+            try {
+                tg.MainButton.hide();
+            } catch (e) {}
         }
 
         /* ============================================================
@@ -795,6 +792,7 @@
         }
 
         function cartCount() {
+            // Гарантируем, что складываем числа, а не строки
             return Object.values(cart).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
         }
 
@@ -1081,24 +1079,6 @@
             badge.classList.toggle('show', count > 0);
         }
 
-        // Защита системной кнопки Telegram от спама кликами (Debounce)
-        let mainBtnTimer = null;
-        function syncMainButton() {
-            if (!hasMainButton) return;
-            
-            if (mainBtnTimer) clearTimeout(mainBtnTimer);
-            
-            mainBtnTimer = setTimeout(() => {
-                const count = cartCount();
-                if (count > 0) {
-                    tg.MainButton.setText(`Оформить заказ • ${formatPrice(cartTotal())}`);
-                    if (!tg.MainButton.isVisible) tg.MainButton.show();
-                } else {
-                    tg.MainButton.hide();
-                }
-            }, 150);
-        }
-
         function syncClosingConfirmation() {
             try {
                 if (cartCount() > 0) {
@@ -1143,7 +1123,6 @@
             renderCatalog();
             renderCartPage();
             updateCartBadge();
-            syncMainButton();
             syncClosingConfirmation();
             if (persist) saveCartToCloud();
         }
@@ -1268,7 +1247,6 @@
         renderCatalog();
         renderCartPage();
         updateCartBadge();
-        syncMainButton();
         loadCartFromCloud();
 
         /* ============================================================
