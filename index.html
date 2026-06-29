@@ -71,9 +71,10 @@
             font-weight: 800;
             letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            z-index: 3100; /* Выше бокового меню */
         }
 
-        /* Кнопка-бургер */
+        /* Кнопка-бургер с анимацией в крестик */
         .burger-btn {
             position: absolute;
             left: 15px;
@@ -85,10 +86,10 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            width: 22px;
+            width: 24px;
             height: 16px;
             padding: 0;
-            z-index: 10;
+            z-index: 3100;
         }
 
         .burger-btn span {
@@ -97,8 +98,15 @@
             height: 2px;
             background-color: var(--gold-accent);
             border-radius: 2px;
-            transition: transform 0.25s ease, opacity 0.25s ease;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+                        opacity 0.3s ease, 
+                        background-color 0.3s ease;
+            transform-origin: center;
         }
+
+        .burger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .burger-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .burger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
         /* Боковое меню категорий */
         .sidebar {
@@ -112,9 +120,9 @@
             -webkit-backdrop-filter: blur(20px);
             box-shadow: 5px 0 30px rgba(0,0,0,0.7);
             z-index: 3000;
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             padding: 24px 20px;
-            padding-top: calc(24px + env(safe-area-inset-top));
+            padding-top: calc(80px + env(safe-area-inset-top)); /* Отступ под header */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -132,12 +140,12 @@
             z-index: 2900;
             display: none;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
 
         .sidebar-overlay.active { opacity: 1; }
 
-        .category-list { margin-top: 25px; display: flex; flex-direction: column; gap: 10px; }
+        .category-list { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
 
         .category-item {
             background: rgba(255, 255, 255, 0.04);
@@ -151,11 +159,30 @@
             font-size: 15px;
             font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s, border-color 0.2s, transform 0.1s;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s cubic-bezier(0.2, 0, 0.2, 1);
             text-align: left;
+            /* Для каскадной анимации при открытии меню */
+            opacity: 0;
+            transform: translateX(-20px);
         }
 
-        .category-item:active { transform: scale(0.97); }
+        .sidebar.active .category-item {
+            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* Задержки для пунктов меню */
+        .sidebar.active .category-item:nth-child(1) { animation-delay: 0.1s; }
+        .sidebar.active .category-item:nth-child(2) { animation-delay: 0.15s; }
+        .sidebar.active .category-item:nth-child(3) { animation-delay: 0.2s; }
+        .sidebar.active .category-item:nth-child(4) { animation-delay: 0.25s; }
+        .sidebar.active .category-item:nth-child(5) { animation-delay: 0.3s; }
+        .sidebar.active .category-item:nth-child(6) { animation-delay: 0.35s; }
+
+        @keyframes slideInRight {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .category-item:active { transform: scale(0.96); }
 
         .category-item.active {
             background: rgba(254, 204, 47, 0.15);
@@ -169,16 +196,16 @@
             display: none;
             padding: 15px;
             opacity: 0;
-            transform: translateY(12px);
+            transform: translateY(15px);
             will-change: transform, opacity;
         }
 
         .page.active {
             display: block;
-            animation: cubicPageIn 0.35s cubic-bezier(0.215, 0.610, 0.355, 1) forwards;
+            animation: pageFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes cubicPageIn {
+        @keyframes pageFadeIn {
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -209,16 +236,26 @@
             transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
+            
+            /* Каскадное появление */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUpIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeUpIn {
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .product-card:active {
-            transform: scale(0.97);
+            transform: scale(0.96);
             border-color: rgba(187, 134, 252, 0.2);
         }
 
         .product-card.glow-border {
             border-color: var(--gold-accent) !important;
             box-shadow: 0 0 18px rgba(254, 204, 47, 0.45) !important;
+            transform: scale(1.02);
         }
 
         .product-img-box {
@@ -230,11 +267,12 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            transition: background 0.3s ease;
         }
 
         .product-img-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        .product-title { font-size: 14px; margin: 8px 0; min-height: 34px; }
+        .product-title { font-size: 14px; margin: 8px 0; min-height: 34px; transition: color 0.3s; }
         .product-price { font-weight: bold; color: var(--accent-color); margin-bottom: 8px; }
 
         /* Кнопки */
@@ -247,11 +285,11 @@
             font-weight: bold;
             cursor: pointer;
             width: 100%;
-            transition: transform 0.1s ease, background-color 0.2s ease, opacity 0.2s ease;
+            transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1), background-color 0.2s ease, opacity 0.2s ease;
             margin-top: auto;
         }
 
-        .btn:active { transform: scale(0.95); background-color: #d1adff; }
+        .btn:active { transform: scale(0.92); background-color: #d1adff; }
         .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
 
         body.tg-native #checkoutBtn { display: none !important; }
@@ -266,9 +304,9 @@
             cursor: pointer;
             width: 100%;
             font-size: 16px;
-            transition: transform 0.1s ease;
+            transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.2s;
         }
-        .btn-gold:active { transform: scale(0.96); }
+        .btn-gold:active { transform: scale(0.95); box-shadow: 0 0 15px rgba(254, 203, 47, 0.4); }
 
         .btn-ghost {
             background: rgba(255,255,255,0.06);
@@ -278,7 +316,9 @@
             border-radius: 8px;
             font-size: 13px;
             cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
         }
+        .btn-ghost:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
 
         /* Степпер количества */
         .qty-stepper {
@@ -289,6 +329,8 @@
             border-radius: 8px;
             margin-top: auto;
             overflow: hidden;
+            border: 1px solid transparent;
+            transition: border-color 0.3s;
         }
 
         .qty-btn {
@@ -301,9 +343,10 @@
             height: 32px;
             cursor: pointer;
             line-height: 1;
+            transition: background 0.2s, transform 0.1s;
         }
 
-        .qty-btn:active { background: rgba(254, 204, 47, 0.15); }
+        .qty-btn:active { background: rgba(254, 204, 47, 0.2); transform: scale(0.85); }
         .qty-value { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
 
         /* Таббар */
@@ -333,10 +376,11 @@
             border: none;
             cursor: pointer;
             flex: 1;
-            transition: color 0.25s ease;
+            transition: color 0.3s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .tab-item span { transition: color 0.25s ease; margin-top: 4px; }
+        .tab-item:active { transform: scale(0.9); }
+        .tab-item span { transition: color 0.3s ease; margin-top: 4px; }
         .tab-item.active span { color: var(--gold-accent); font-weight: 500; }
 
         .tab-icon-wrap { position: relative; }
@@ -357,9 +401,15 @@
             justify-content: center;
             padding: 0 4px;
             z-index: 2;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .cart-badge.show { display: flex; }
+        .cart-badge.show { display: flex; animation: badgeEnter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        @keyframes badgeEnter {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
 
         /* Векторные маски для иконок */
         .tab-icon, .sidebar-icon, .product-icon {
@@ -376,13 +426,13 @@
             animation: goldShine 4s linear infinite;
             opacity: 0.35;
             filter: grayscale(1);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s, filter 0.25s;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s, filter 0.3s;
             will-change: transform, opacity;
         }
 
         .tab-item.active .tab-icon {
             opacity: 1; filter: grayscale(0);
-            transform: scale(1.22) translateY(-2px);
+            transform: scale(1.25) translateY(-2px);
         }
 
         /* --- АНИМАЦИЯ ИКОНКИ КОРЗИНЫ --- */
@@ -453,67 +503,85 @@
             background: rgba(25, 25, 25, 0.95); border: 1px solid rgba(254, 204, 40, 0.25);
             padding: 24px; border-radius: 16px; text-align: center;
             max-width: 290px; width: 100%; transform: scale(0.85);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 10px 30px rgba(0,0,0,0.7); display: flex; flex-direction: column; align-items: center;
         }
         .modal-overlay.active .modal-content { transform: scale(1); }
 
-        /* Элементы корзины */
-        .cart-item-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        /* Элементы корзины с каскадной анимацией */
+        .cart-item-row { 
+            display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); 
+            opacity: 0; transform: translateY(15px); animation: fadeUpIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
         .cart-item-row:last-of-type { border-bottom: none; }
         .cart-item-info { flex: 1; min-width: 0; }
         .cart-item-name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cart-item-price { font-size: 12px; color: #888; margin-top: 2px; }
         .cart-item-line-total { font-size: 14px; font-weight: 600; min-width: 64px; text-align: right; }
-        .cart-remove-btn { background: none; border: none; color: #777; font-size: 18px; cursor: pointer; padding: 4px 2px 4px 8px; }
-        .cart-remove-btn:active { color: #ff6b6b; }
-        .cart-empty-state { text-align: center; color: #888; padding: 30px 10px; font-size: 14px; }
+        .cart-remove-btn { background: none; border: none; color: #777; font-size: 18px; cursor: pointer; padding: 4px 2px 4px 8px; transition: color 0.2s, transform 0.1s; }
+        .cart-remove-btn:active { color: #ff6b6b; transform: scale(0.8); }
+        .cart-empty-state { text-align: center; color: #888; padding: 30px 10px; font-size: 14px; animation: pageFadeIn 0.4s ease; }
         .cart-empty-state .btn-ghost { margin-top: 14px; display: inline-block; width: auto; }
 
         .toast {
             position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
             background: rgba(25,25,25,0.95); border: 1px solid rgba(254, 204, 40, 0.3); color: #fff;
             padding: 10px 18px; border-radius: 999px; font-size: 13px; z-index: 2500;
-            opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* --- ЭКРАН ПРИВЕТСТВИЯ (ОНБОРДИНГ) --- */
         .welcome-screen {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(14, 14, 14, 0.75); /* Полупрозрачный фон, чтобы видеть частицы */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            display: none; /* по умолчанию скрыто, покажет JS */
+            background: rgba(14, 14, 14, 0.75); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: none; 
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             padding: 20px;
             opacity: 1;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+            transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
         }
+        
         .welcome-screen.hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
+            transform: scale(1.05); /* Легкий отлет назад при закрытии */
         }
+        
         .welcome-content {
             background: rgba(30, 30, 30, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 40px 24px;
             border-radius: 24px;
             text-align: center;
             width: 100%;
             max-width: 320px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-            transform: translateY(0);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            /* Анимация появления плашки */
+            animation: welcomePopIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             box-sizing: border-box;
         }
-        .welcome-screen.hidden .welcome-content {
-            transform: translateY(40px);
+        
+        @keyframes welcomePopIn {
+            0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
+
+        /* Каскадное появление элементов внутри приветствия */
+        .welcome-content > * {
+            opacity: 0;
+            animation: fadeUpIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .welcome-content h1 { animation-delay: 0.1s; }
+        .welcome-content p { animation-delay: 0.2s; }
+        .welcome-content button { animation-delay: 0.3s; }
+
     </style>
 </head>
 <body>
@@ -522,22 +590,19 @@
 
     <div id="welcomeScreen" class="welcome-screen">
         <div class="welcome-content">
-            <h1 class="gold-shimmer-text" style="font-size: 32px; margin: 0 0 10px 0;">Vape Shop</h1>
-            <p style="color: #ccc; font-size: 15px; margin: 0 0 30px 0; line-height: 1.5;">
+            <h1 class="gold-shimmer-text" style="font-size: 34px; margin: 0 0 12px 0;">Vape Shop</h1>
+            <p style="color: #ccc; font-size: 15px; margin: 0 0 35px 0; line-height: 1.5;">
                 Добро пожаловать!<br>
                 Покупайте любимые товары и оформляйте заказы за пару кликов.
             </p>
-            <div style="background: rgba(254, 203, 47, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(254, 203, 47, 0.2); margin-bottom: 40px;">
-                <p style="margin: 0; font-size: 14px; color: #fff;">🎁 Выдача товаров моментальная!</p>
-            </div>
-            <button class="btn-gold" style="padding: 16px; font-size: 16px; border-radius: 12px;" onclick="closeWelcomeScreen()">Продолжить</button>
+            <button class="btn-gold" style="padding: 16px; font-size: 16px; border-radius: 12px;" onclick="closeWelcomeScreen()">Перейти к товарам</button>
         </div>
     </div>
 
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
     <div id="sidebarMenu" class="sidebar">
-        <h3 class="gold-shimmer-text" style="margin: 10px 0 0 0; font-size: 22px; font-weight: 800;">Категории</h3>
+        <h3 class="gold-shimmer-text" style="margin: 0 0 0 0; font-size: 22px; font-weight: 800;">Категории</h3>
         <p style="font-size: 11px; color: #777; margin: 4px 0 0 0;">Выберите нужный раздел</p>
 
         <div class="category-list" id="categoryList"></div>
@@ -553,7 +618,7 @@
                 Список товаров скопирован. Перейдите к менеджеру и вставьте текст в сообщение.
             </p>
             <button class="btn-gold" id="modalManagerBtn" onclick="redirectToManager()">Написать менеджеру</button>
-            <button onclick="closeModal()" style="background:none; border:none; color:#666; margin-top:14px; cursor:pointer; font-size: 12px; text-decoration: underline;">Закрыть</button>
+            <button onclick="closeModal()" style="background:none; border:none; color:#666; margin-top:14px; cursor:pointer; font-size: 12px; text-decoration: underline; transition: color 0.2s;">Закрыть</button>
         </div>
     </div>
 
@@ -561,7 +626,7 @@
 
     <div class="content-wrapper">
         <header>
-            <button class="burger-btn" onclick="toggleSidebar()">
+            <button class="burger-btn" id="burgerBtn" onclick="toggleSidebar()">
                 <span></span><span></span><span></span>
             </button>
             <span class="gold-shimmer-text">Vape Shop</span>
@@ -573,20 +638,20 @@
         </div>
 
         <div id="cart-page" class="page">
-            <div class="product-card" style="text-align: left; max-width: 600px; margin: 0 auto; display:block;">
+            <div class="product-card" style="text-align: left; max-width: 600px; margin: 0 auto; display:block; animation: none; opacity: 1; transform: none;">
                 <h3 style="margin-top: 0; color: var(--gold-accent);">Ваш заказ</h3>
                 <div id="cart-items">Корзина пуста</div>
                 <hr style="border-color: rgba(255,255,255,0.06); margin: 15px 0;">
                 <div style="display: flex; justify-content: space-between; font-weight: bold;">
                     <span>Итого:</span>
-                    <span id="cart-total">0 ₽</span>
+                    <span id="cart-total" style="transition: color 0.3s;">0 ₽</span>
                 </div>
                 <button class="btn" id="checkoutBtn" style="margin-top: 20px;" onclick="checkout()" disabled>Оформить заказ</button>
             </div>
         </div>
 
         <div id="profile-page" class="page">
-            <div class="product-card" style="text-align: left; max-width: 600px; margin: 0 auto; display:block;">
+            <div class="product-card" style="text-align: left; max-width: 600px; margin: 0 auto; display:block; animation: none; opacity: 1; transform: none;">
                 <p style="margin-top:0;"><strong>Привет, <span id="user-name">Гость</span>!</strong></p>
                 <p>Ваш ID: <span id="user-id">-</span></p>
                 <p style="margin-bottom:0;">Статус: Постоянный клиент</p>
@@ -677,16 +742,14 @@
         // ЗАКРЫТИЕ ЭКРАНА ПРИВЕТСТВИЯ
         function closeWelcomeScreen() {
             const welcomeScreen = document.getElementById('welcomeScreen');
-            // Записываем в память, что пользователь уже видел этот экран
             localStorage.setItem('vape_shop_visited', 'true');
             
             welcomeScreen.classList.add('hidden');
             tg.HapticFeedback?.impactOccurred?.('medium');
             
-            // Полностью убираем элемент из верстки после окончания анимации
             setTimeout(() => {
                 welcomeScreen.style.display = 'none';
-            }, 400);
+            }, 500); // Синхронно с длительностью CSS transition
         }
 
         function formatPrice(amount) { return amount.toLocaleString(CONFIG.currencyLocale) + CONFIG.currencySuffix; }
@@ -769,7 +832,13 @@
                 empty.className = 'catalog-empty'; empty.textContent = 'В этом разделе пока нет товаров';
                 grid.appendChild(empty); return;
             }
-            items.forEach(product => grid.appendChild(buildProductCard(product)));
+            
+            // Рендер с задержкой (каскадная анимация)
+            items.forEach((product, index) => {
+                const card = buildProductCard(product);
+                card.style.animationDelay = `${index * 0.05}s`;
+                grid.appendChild(card);
+            });
         }
 
         function buildProductCard(product) {
@@ -857,9 +926,23 @@
                 goBtn.addEventListener('click', (e) => { e.preventDefault(); const catalogTabBtn = document.querySelector('.tabbar .tab-item:nth-child(1)'); switchTab('home', catalogTabBtn); });
                 emptyState.appendChild(goBtn); container.appendChild(emptyState);
             } else {
-                entries.forEach(([id, qty]) => { const product = findProduct(id); if (product) container.appendChild(buildCartRow(product, qty)); });
+                // Каскадная анимация строк корзины
+                entries.forEach(([id, qty], index) => { 
+                    const product = findProduct(id); 
+                    if (product) {
+                        const row = buildCartRow(product, qty);
+                        row.style.animationDelay = `${index * 0.05}s`;
+                        container.appendChild(row);
+                    } 
+                });
             }
+            
+            // Обновляем общую сумму
             totalEl.textContent = formatPrice(cartTotal());
+            // Добавляем эффект моргания цены при изменении
+            totalEl.style.color = '#fff';
+            setTimeout(() => { totalEl.style.color = 'var(--gold-accent)'; }, 50);
+
             checkoutBtn.disabled = entries.length === 0;
         }
 
@@ -957,14 +1040,26 @@
         }
 
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebarMenu'); const overlay = document.getElementById('sidebarOverlay');
+            const sidebar = document.getElementById('sidebarMenu'); 
+            const overlay = document.getElementById('sidebarOverlay');
+            const burgerBtn = document.getElementById('burgerBtn');
+            
             tg.HapticFeedback?.impactOccurred?.('medium');
+            
             if (sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active'); overlay.classList.remove('active');
-                setTimeout(() => { if (!sidebar.classList.contains('active')) overlay.style.display = 'none'; }, 300); 
+                sidebar.classList.remove('active'); 
+                overlay.classList.remove('active');
+                burgerBtn.classList.remove('open'); // Убираем крестик
+                setTimeout(() => { if (!sidebar.classList.contains('active')) overlay.style.display = 'none'; }, 400); 
             } else {
                 overlay.style.display = 'block';
-                requestAnimationFrame(() => { requestAnimationFrame(() => { sidebar.classList.add('active'); overlay.classList.add('active'); }); });
+                requestAnimationFrame(() => { 
+                    requestAnimationFrame(() => { 
+                        sidebar.classList.add('active'); 
+                        overlay.classList.add('active'); 
+                        burgerBtn.classList.add('open'); // Делаем крестик
+                    }); 
+                });
             }
         }
 
@@ -975,7 +1070,13 @@
 
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-            targetPage.classList.add('active'); element.classList.add('active');
+            
+            // Небольшой рефреш анимации появления для новой страницы
+            targetPage.classList.remove('active');
+            void targetPage.offsetWidth; 
+            
+            targetPage.classList.add('active'); 
+            element.classList.add('active');
             tg.HapticFeedback?.impactOccurred?.('light');
         }
 
