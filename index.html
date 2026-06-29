@@ -436,8 +436,7 @@
         ];
 
         const tg = window.Telegram?.WebApp || { expand: () => {}, HapticFeedback: {}, openTelegramLink: (url) => window.open(url, '_blank'), close: () => window.close() };
-        const hasMainButton = !!tg.MainButton;
-
+        
         try {
             tg.ready?.();
             tg.expand?.();
@@ -450,8 +449,9 @@
             }
         } catch (e) { console.log('Telegram SDK Safe Mode Active', e); }
 
-        if (hasMainButton) {
-            document.body.classList.add('tg-native');
+        // Полностью прячем нативную кнопку Telegram, чтобы она не мешалась,
+        // но НЕ прячем нашу фиолетовую кнопку оформления внутри корзины.
+        if (tg.MainButton) {
             try { tg.MainButton.hide(); } catch (e) {}
         }
 
@@ -481,10 +481,7 @@
                 text.style.color = 'var(--error-color)';
                 text.innerHTML = 'Доступ запрещен.<br><br>Мы продаем товары только лицам старше 18 лет.';
                 
-                // Через 2 секунды закрываем мини-приложение
-                setTimeout(() => {
-                    tg.close?.();
-                }, 2000);
+                setTimeout(() => { tg.close?.(); }, 2000);
             }
         }
 
@@ -740,6 +737,20 @@
             return text;
         }
 
+        // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТКРЫТИЯ ЧАТА С МЕНЕДЖЕРОМ ---
+        function openManagerChat() {
+            const url = `https://t.me/${CONFIG.managerUsername}`;
+            try {
+                if (tg && tg.openTelegramLink) {
+                    tg.openTelegramLink(url);
+                } else {
+                    window.location.href = url;
+                }
+            } catch (e) {
+                window.location.href = url;
+            }
+        }
+
         function checkout() {
             if (cartCount() === 0) return;
             const orderText = buildOrderText();
@@ -756,8 +767,10 @@
         }
 
         function redirectToManager() {
-            try { tg.openTelegramLink(`https://t.me/${CONFIG.managerUsername}`); } catch (e) { window.open(`https://t.me/${CONFIG.managerUsername}`, '_blank'); }
-            cart = {}; onCartChanged(); closeModal();
+            openManagerChat(); // Надежно открываем чат
+            cart = {};         // Очищаем корзину только после оформления
+            onCartChanged(); 
+            closeModal();
         }
 
         function closeModal() {
