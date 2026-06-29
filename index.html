@@ -7,12 +7,11 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0e0e0e; /* Сделал фон чуть мягче, как в Telegram */
+            --bg-color: #0e0e0e;
             --text-color: #ffffff;
             --accent-color: #bb86fc;
             --card-bg: rgba(35, 35, 35, 0.6);
             --gold-accent: #fecb2f;
-            --menu-btn-bg: #1c1c1e;
         }
 
         body {
@@ -99,98 +98,6 @@
             background-color: var(--gold-accent);
             border-radius: 2px;
             transition: transform 0.25s ease, opacity 0.25s ease;
-        }
-
-        /* --- СТАРТОВЫЙ ЭКРАН (ГЛАВНОЕ МЕНЮ) --- */
-        .welcome-banner {
-            background: linear-gradient(135deg, #2b112c 0%, #ff4b91 100%);
-            border-radius: 16px;
-            height: 140px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 20px rgba(255, 75, 145, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .welcome-banner h2 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 900;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            z-index: 2;
-        }
-
-        .welcome-banner p {
-            margin: 5px 0 0 0;
-            color: rgba(255,255,255,0.9);
-            font-size: 14px;
-            z-index: 2;
-        }
-
-        /* Блики и украшения баннера */
-        .welcome-banner::before {
-            content: '';
-            position: absolute;
-            top: -50px; right: -50px;
-            width: 120px; height: 120px;
-            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
-            border-radius: 50%;
-            z-index: 1;
-        }
-
-        .info-box {
-            background: rgba(139, 92, 246, 0.1);
-            border-left: 3px solid #bb86fc;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-
-        .info-box p { margin: 0 0 5px 0; font-size: 14px; }
-        .info-box p:last-child { margin: 0; font-size: 12px; color: #aaa; font-style: italic; }
-
-        /* Сетка кнопок меню (как в ТГ боте) */
-        .bot-menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .bot-menu-btn {
-            background-color: var(--menu-btn-bg);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 10px;
-            padding: 14px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.1s, transform 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .bot-menu-btn:active {
-            transform: scale(0.97);
-            background-color: #2c2c2e;
-        }
-
-        .bot-menu-btn.full { grid-column: 1 / -1; }
-        
-        .bot-menu-btn.primary {
-            background-color: rgba(254, 203, 47, 0.15);
-            border-color: rgba(254, 203, 47, 0.3);
-            color: var(--gold-accent);
         }
 
         /* Боковое меню категорий */
@@ -354,11 +261,11 @@
             color: #000;
             font-weight: bold;
             border: none;
-            padding: 12px 15px;
-            border-radius: 8px;
+            padding: 14px 15px;
+            border-radius: 12px;
             cursor: pointer;
             width: 100%;
-            font-size: 14px;
+            font-size: 16px;
             transition: transform 0.1s ease;
         }
         .btn-gold:active { transform: scale(0.96); }
@@ -397,7 +304,6 @@
         }
 
         .qty-btn:active { background: rgba(254, 204, 47, 0.15); }
-
         .qty-value { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
 
         /* Таббар */
@@ -571,11 +477,63 @@
             opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* --- ЭКРАН ПРИВЕТСТВИЯ (ОНБОРДИНГ) --- */
+        .welcome-screen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(14, 14, 14, 0.75); /* Полупрозрачный фон, чтобы видеть частицы */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: none; /* по умолчанию скрыто, покажет JS */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            opacity: 1;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .welcome-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .welcome-content {
+            background: rgba(30, 30, 30, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 24px;
+            border-radius: 24px;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            transform: translateY(0);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-sizing: border-box;
+        }
+        .welcome-screen.hidden .welcome-content {
+            transform: translateY(40px);
+        }
     </style>
 </head>
 <body>
 
     <canvas id="dotsCanvas"></canvas>
+
+    <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-content">
+            <h1 class="gold-shimmer-text" style="font-size: 32px; margin: 0 0 10px 0;">Vape Shop</h1>
+            <p style="color: #ccc; font-size: 15px; margin: 0 0 30px 0; line-height: 1.5;">
+                Добро пожаловать!<br>
+                Покупайте любимые товары и оформляйте заказы за пару кликов.
+            </p>
+            <div style="background: rgba(254, 203, 47, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(254, 203, 47, 0.2); margin-bottom: 40px;">
+                <p style="margin: 0; font-size: 14px; color: #fff;">🎁 Выдача товаров моментальная!</p>
+            </div>
+            <button class="btn-gold" style="padding: 16px; font-size: 16px; border-radius: 12px;" onclick="closeWelcomeScreen()">Продолжить</button>
+        </div>
+    </div>
+
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
     <div id="sidebarMenu" class="sidebar">
@@ -609,34 +567,7 @@
             <span class="gold-shimmer-text">Vape Shop</span>
         </header>
 
-        <div id="main-page" class="page active">
-            <div class="welcome-banner">
-                <h2>ГЛАВНОЕ МЕНЮ</h2>
-                <p>Welcome to the club</p>
-            </div>
-            
-            <div class="info-box">
-                <p>✨ <strong>Добро пожаловать!</strong></p>
-                <p>Покупайте любимые товары и оформляйте заказы за пару кликов.</p>
-            </div>
-            
-            <p style="font-size: 13px; margin: 10px 0 15px 5px; color: #ccc; display: flex; align-items: center; gap: 6px;">
-                <span style="color: var(--gold-accent);">🎁</span> Оформление заказа моментальное!
-            </p>
-
-            <div class="bot-menu-grid">
-                <button class="bot-menu-btn full primary" onclick="document.querySelector('.tabbar .tab-item:nth-child(2)').click()">
-                    🛍 Открыть каталог товаров
-                </button>
-                <button class="bot-menu-btn" onclick="showToast('В разработке')">⭐ Premium</button>
-                <button class="bot-menu-btn" onclick="showToast('В разработке')">💎 Купить VIP</button>
-                <button class="bot-menu-btn full" onclick="showToast('В разработке')">🎁 Купить в подарок</button>
-                <button class="bot-menu-btn" onclick="document.querySelector('.tabbar .tab-item:nth-child(4)').click()">👤 Профиль</button>
-                <button class="bot-menu-btn" onclick="redirectToManager()">💬 Поддержка ↗</button>
-            </div>
-        </div>
-
-        <div id="catalog-page" class="page">
+        <div id="home-page" class="page active">
             <h4 id="currentCategoryTitle" style="margin: 5px 0 15px 0; font-weight: 600; color: #aaa; font-size: 14px;">Раздел: Все товары</h4>
             <div class="catalog" id="catalogGrid"></div>
         </div>
@@ -663,11 +594,7 @@
         </div>
 
         <nav class="tabbar">
-            <button class="tab-item active" onclick="switchTab('main', this)">
-                <div class="tab-icon icon-home"></div>
-                <span>Главная</span>
-            </button>
-            <button class="tab-item" onclick="switchTab('catalog', this)">
+            <button class="tab-item active" onclick="switchTab('home', this)">
                 <div class="tab-icon icon-star"></div>
                 <span>Каталог</span>
             </button>
@@ -737,6 +664,31 @@
         let currentCategory = 'all';
         let cart = {};
 
+        // ПРОВЕРКА ПЕРВОГО ЗАХОДА В БОТ
+        function checkFirstVisit() {
+            const hasVisited = localStorage.getItem('vape_shop_visited');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            
+            if (!hasVisited) {
+                welcomeScreen.style.display = 'flex';
+            }
+        }
+
+        // ЗАКРЫТИЕ ЭКРАНА ПРИВЕТСТВИЯ
+        function closeWelcomeScreen() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            // Записываем в память, что пользователь уже видел этот экран
+            localStorage.setItem('vape_shop_visited', 'true');
+            
+            welcomeScreen.classList.add('hidden');
+            tg.HapticFeedback?.impactOccurred?.('medium');
+            
+            // Полностью убираем элемент из верстки после окончания анимации
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+            }, 400);
+        }
+
         function formatPrice(amount) { return amount.toLocaleString(CONFIG.currencyLocale) + CONFIG.currencySuffix; }
         function findProduct(id) { return PRODUCTS.find(p => p.id === id); }
         function cartCount() { return Object.values(cart).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0); }
@@ -801,9 +753,8 @@
             });
 
             renderCatalog();
-            // Перекидываем на 2-ю вкладку (Каталог)
-            const catalogTabButton = document.querySelector('.tabbar .tab-item:nth-child(2)');
-            switchTab('catalog', catalogTabButton);
+            const homeTabButton = document.querySelector('.tabbar .tab-item:nth-child(1)');
+            switchTab('home', homeTabButton);
             toggleSidebar();
             tg.HapticFeedback?.notificationOccurred?.('success');
         }
@@ -903,7 +854,7 @@
             if (entries.length === 0) {
                 const emptyState = document.createElement('div'); emptyState.className = 'cart-empty-state'; emptyState.innerHTML = 'Корзина пуста<br>';
                 const goBtn = document.createElement('button'); goBtn.className = 'btn-ghost'; goBtn.textContent = 'Перейти в каталог';
-                goBtn.addEventListener('click', (e) => { e.preventDefault(); const catalogTabBtn = document.querySelector('.tabbar .tab-item:nth-child(2)'); switchTab('catalog', catalogTabBtn); });
+                goBtn.addEventListener('click', (e) => { e.preventDefault(); const catalogTabBtn = document.querySelector('.tabbar .tab-item:nth-child(1)'); switchTab('home', catalogTabBtn); });
                 emptyState.appendChild(goBtn); container.appendChild(emptyState);
             } else {
                 entries.forEach(([id, qty]) => { const product = findProduct(id); if (product) container.appendChild(buildCartRow(product, qty)); });
@@ -1034,8 +985,12 @@
             clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 1600);
         }
 
+        /* --- ИНИЦИАЛИЗАЦИЯ --- */
+        checkFirstVisit(); // Проверяем, нужно ли показать приветствие
+        
         renderSidebarCategories(); renderCatalog(); renderCartPage(); updateCartBadge(); loadCartFromCloud();
 
+        /* --- АНИМАЦИЯ ВОЛН НА ФОНЕ --- */
         const canvas = document.getElementById('dotsCanvas'); const ctx = canvas.getContext('2d');
         let pointer = { x: null, y: null, radius: 90 }; const dotDensity = 16; const lineSpacing = 34; let numLines = 0; let rafId = null;
 
